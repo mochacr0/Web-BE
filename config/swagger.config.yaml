@@ -1,0 +1,357 @@
+openapi: 3.0.1
+info:
+    title: Shop
+    description: 'Shop API'
+    termsOfService: http://swagger.io/terms/
+    contact:
+        email: apiteam@swagger.io
+    version: 1.0.0
+externalDocs:
+    description: Find out more about Swagger
+    url: http://swagger.io
+servers:
+    - url: http://localhost:5000/api
+tags:
+    - name: Auth
+      description: Everything about Authorization/Authentication
+paths:
+    /auth/login:
+        post:
+            tags:
+                - Auth
+            summary: Login
+            requestBody:
+                description: User credentials
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    nullable: false
+                                password:
+                                    type: string
+                                    nullable: false
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                  accessToken:
+                                    type: string
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/register:
+        post:
+            tags:
+                - Auth
+            summary: Register
+            requestBody:
+                description: User object that needs to be added
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    nullable: false
+                                email:
+                                    type: string
+                                    nullable: false
+                                password:
+                                    type: string
+                                    nullable: false
+                                phone:
+                                    type: string
+                                    nullable: false
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/verify-email:
+        patch:
+            tags:
+                - Auth
+            summary: Verify email
+            parameters:
+                - in: query
+                  name: emailVerificationToken
+                  required: true
+                  schema:
+                      type: string
+                  description: Email Verification token
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    accessToken:
+                                        type: string
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/cancel-verify-email:
+        patch:
+            tags:
+                - Auth
+            summary: Cancel verify email
+            parameters:
+                - in: query
+                  name: emailVerificationToken
+                  required: true
+                  schema:
+                      type: string
+                  description: Email Verification token
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/forgot-password:
+        patch:
+            tags:
+                - Auth
+            summary: Forgot password
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    description: Email need to be reset
+                                    nullable: false
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/reset-password:
+        patch:
+            tags:
+                - Auth
+            summary: Reset password
+            parameters:
+                - in: query
+                  name: resetPasswordToken
+                  required: true
+                  schema:
+                      type: string
+                  description: Reset password token
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    nullable: false
+                                newPassword:
+                                    type: string
+                                    nullable: false
+                                confirmPassword:
+                                    type: string
+                                    nullable: false
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/cancel-reset-password:
+        patch:
+            tags:
+                - Auth
+            summary: Cancel reset password
+            parameters:
+                - in: query
+                  name: resetPasswordToken
+                  required: true
+                  schema:
+                      type: string
+                  description: Reset password token
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /auth/change-password:
+        patch:
+            tags:
+                - Auth
+            security:
+                - bearerAuth: []
+            summary: Change password
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                currentPassword:
+                                    type: string
+                                    nullable: false
+                                newPassword:
+                                    type: string
+                                    nullable: false
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    accessToken:
+                                        type: string
+                                        nullable: false
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        Error:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+        Timestamps:
+            type: object
+            properties:
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+        Message:
+            type: object
+            properties:
+                message:
+                    type: string
+ 
+    securitySchemes:
+        bearerAuth:
+            type: apiKey
+            description: '<i>JWT Authorization header using the Bearer scheme.</i> <b>Example</b>: <i><u>Bearer 12345abcdef</u></i>'
+            in: header # can be "header", "query" or "cookie"
+            name: Authorization # name of the header, query parameter or cookie
+# 2) Apply the security globally to all operations
+security:
+    - bearerAuth: [] # use the same name as above                                
