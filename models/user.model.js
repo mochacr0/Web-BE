@@ -13,8 +13,7 @@ const userSchema = mongoose.Schema(
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      required: false,
     },
     phone: {
       type: String,
@@ -22,12 +21,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
-    },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
+      required: false,
     },
     address: {
       type: String,
@@ -61,6 +55,14 @@ const userSchema = mongoose.Schema(
     },
     resetPasswordTokenExpiryTime: {
       type: Number,
+      required: false,
+    },
+    googleId: {
+      type: String,
+      required: false,
+    },
+    facebookId: {
+      type: String,
       required: false,
     },
   },
