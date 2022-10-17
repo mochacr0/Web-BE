@@ -6,7 +6,7 @@ import YAML from "yamljs";
 import swaggerUiExpress from "swagger-ui-express";
 import connectDatabase from "./config/db.config.js";
 import { notFound, errorHandler } from "./middlewares/error.middleware.js";
-import authRouter from "./routes/auth.route.js";
+import routes from "./routes/index.js";
 
 dotenv.config();
 connectDatabase();
@@ -27,8 +27,8 @@ app.use(
   })
 );
 
-//api
-app.use("/api/auth", authRouter);
+//api routes
+routes(app);
 
 //error handler middlewares
 app.use(notFound);
