@@ -1,7 +1,5 @@
-import { trusted } from "mongoose";
 import Category from "../models/category.model.js";
-import Product from "../models/product.model.js";
-import checkParams from "../utils/validate.js";
+import { checkParams } from "../utils/validate.js";
 
 const findAll = async (req, res) => {
   const exsitingCategories = await Category.find();

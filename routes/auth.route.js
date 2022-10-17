@@ -6,8 +6,7 @@ import dotenv from "dotenv";
 import {
   passportGoogleConfig,
   passportFacebookConfig,
-} from "../config/passport.google.config.js";
-import sendClientRedirectHTML from "../utils/sendClientRedirectHTML.js";
+} from "../config/passport.config.js";
 
 const authRouter = express.Router();
 
