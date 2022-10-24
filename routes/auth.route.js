@@ -1,5 +1,5 @@
 import express from "express";
-import asyncHandler from "express-async-handler";
+import expressAsyncHandler from "express-async-handler";
 import authController from "../controllers/auth.controller.js";
 import passport from "passport";
 import dotenv from "dotenv";
@@ -14,25 +14,31 @@ dotenv.config();
 passportGoogleConfig(passport);
 passportFacebookConfig(passport);
 
-authRouter.post("/login", asyncHandler(authController.login));
-authRouter.patch("/verify-email", asyncHandler(authController.verifyEmail));
-authRouter.post("/register", asyncHandler(authController.register));
+authRouter.post("/login", expressAsyncHandler(authController.login));
+authRouter.patch(
+  "/verify-email",
+  expressAsyncHandler(authController.verifyEmail)
+);
+authRouter.post("/register", expressAsyncHandler(authController.register));
 authRouter.patch(
   "/change-password",
-  asyncHandler(authController.changePassword)
+  expressAsyncHandler(authController.changePassword)
 );
 authRouter.patch(
   "/forgot-password",
-  asyncHandler(authController.forgotPassword)
+  expressAsyncHandler(authController.forgotPassword)
 );
-authRouter.patch("/reset-password", asyncHandler(authController.resetPassword));
+authRouter.patch(
+  "/reset-password",
+  expressAsyncHandler(authController.resetPassword)
+);
 authRouter.patch(
   "/cancel-verify-email",
-  asyncHandler(authController.cancelVerifyEmail)
+  expressAsyncHandler(authController.cancelVerifyEmail)
 );
 authRouter.patch(
   "/cancel-reset-password",
-  asyncHandler(authController.cancelResetPassword)
+  expressAsyncHandler(authController.cancelResetPassword)
 );
 authRouter.get(
   "/google/login",
