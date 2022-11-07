@@ -4,8 +4,6 @@ import User from "../models/user.model.js";
 import dotenv from "dotenv";
 import generateAuthToken from "../utils/generateToken.js";
 
-dotenv.config();
-
 const googleVerify = async (
   request,
   accessToken,
