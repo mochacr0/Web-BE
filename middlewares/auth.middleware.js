@@ -27,3 +27,21 @@ const protect = asyncHandler(async (req, res, next) => {
     throw new Error("Not authorized, no token");
   }
 });
+
+const auth =
+  (...acceptedRoles) =>
+  (req, res, next) => {
+    const index = acceptedRoles.indexOf(req.user.role);
+    if (index != -1) {
+      next();
+    } else {
+      const roleRepresentation =
+        req.user.role[0].toUpperCase() + req.user.role.substring(1);
+      res.status(403);
+      throw new Error(
+        `${roleRepresentation} is not allowed to access this resources`
+      );
+    }
+  };
+
+export { protect, auth };
