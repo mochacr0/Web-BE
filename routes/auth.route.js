@@ -10,7 +10,6 @@ import {
 
 const authRouter = express.Router();
 
-dotenv.config();
 passportGoogleConfig(passport);
 passportFacebookConfig(passport);
 

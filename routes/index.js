@@ -1,6 +1,7 @@
-import authRouter from "../routes/auth.route.js";
-import categoryRouter from "../routes/category.route.js";
-import productRouter from "../routes/product.route.js";
+import authRouter from "./auth.route.js";
+import categoryRouter from "./category.route.js";
+import productRouter from "./product.route.js";
+import orderRouter from "./order.route.js";
 import cartRouter from "./cart.route.js";
 
 const routes = (app) => {
@@ -8,6 +9,7 @@ const routes = (app) => {
   app.use("/api/category", categoryRouter);
   app.use("/api/product", productRouter);
   app.use("/api/cart", cartRouter);
+  app.use("api/order", orderRouter);
 };
 
 export default routes;

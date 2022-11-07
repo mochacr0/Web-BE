@@ -3,8 +3,6 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import dotenv from "dotenv";
 
-dotenv.config();
-
 const userSchema = mongoose.Schema(
   {
     name: {

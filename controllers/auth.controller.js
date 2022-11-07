@@ -7,8 +7,6 @@ import generateAuthToken from "../utils/generateToken.js";
 import { htmlMailVerify, htmlResetEmail } from "../common/mailLayout.js";
 import image from "../common/images.js";
 
-dotenv.config();
-
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email, isVerified: true });
