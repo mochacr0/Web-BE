@@ -253,17 +253,6 @@ const changePassword = async (req, res) => {
   }
 };
 
-const deleteUserById = async (req, res) => {
-  const deletedUser = await User.findByIdAndDelete(req.params.id);
-  if (!deletedUser) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-  // await Cart.findOneAndDelete({ user: deletedUser });
-  res.status(200);
-  res.json({ message: "User had been removed" });
-};
-
 const authController = {
   login,
   register,
