@@ -14,6 +14,12 @@ servers:
 tags:
     - name: Auth
       description: Everything about Authorization/Authentication
+    - name: User
+      description: Everything about Users
+    - name: Product
+      description: Everything about Products
+    - name: Cart
+      description: Everything about Carts
 paths:
     /auth/login:
         post:
@@ -322,6 +328,552 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+    /category:
+        patch:
+            tags:
+                - Auth
+            summary: Cancel reset password
+            parameters:
+                - in: query
+                  name: resetPasswordToken
+                  required: true
+                  schema:
+                      type: string
+                  description: Reset password token
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'                   
+    /product:
+        post:
+            description: Create new product
+            summary: Create new product
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to create a new product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProductCreateForm'
+            responses:
+                '201':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        get:
+            description: Get a part of products to show on shop client
+            summary: Get a part of products to show on shop client
+            tags:
+                - Product
+            parameters:
+                - in: query
+                  name: pageSize
+                  required: false
+                  schema:
+                      type: integer
+                      description: Number of products in 1 page
+                - in: query
+                  name: pageNumber
+                  required: false
+                  schema:
+                      type: integer
+                      description: Page number
+                - in: query
+                  name: keyword
+                  required: false
+                  schema:
+                      type: string
+                      description: Keyword of product name to find in database
+                - in: query
+                  name: dateOrder
+                  required: false
+                  schema:
+                      type: string
+                      description: Sort products by date
+                      enum:
+                          - newest
+                          - latest
+                - in: query
+                  name: priceOrder
+                  required: false
+                  schema:
+                      type: string
+                      description: Sort products by price
+                      enum:
+                          - asc
+                          - desc
+                - in: query
+                  name: category
+                  required: false
+                  schema:
+                      type: string
+                      description: Product category name
+                - in: query
+                  name: minPrice
+                  required: false
+                  schema:
+                      type: number
+                      description: Product min price filter value
+                - in: query
+                  name: maxPrice
+                  required: false
+                  schema:
+                      type: number
+                      description: Product max price filter value
+                - in: query
+                  name: rating
+                  required: false
+                  schema:
+                      type: integer
+                      description: Product rating filter value
+                # - in: query
+                #   name: status
+                #   required: false
+                #   schema:
+                #       type: string
+                #   description: Sort products by status (disabled/notDisabled/all)
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedProductsResponse'
+                '204':
+                    description: No products found for this keyword
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /product/{id}:
+        get:
+            summary: Get product details with given id
+            description: Get product details with given id
+            tags:
+                - Product
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        put:
+            summary: Update existed product
+            description: Update existed product
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProductUpdateForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        delete:
+            summary: Delete existed product
+            description: Delete existed product
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /product/{id}/review:
+        post:
+            summary: Post new review
+            description: Post new review
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReviewForm'
+            responses:
+                '201':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /product/search:
+        get:
+            summary: Get product search results
+            description: Get product search results
+            tags:
+                - Product
+            parameters:
+                - in: query
+                  name: keyword
+                  required: false
+                  schema:
+                      type: string
+                      description: Keyword of product name to find in database
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        _id:
+                                            type: string
+                                            description: Product id
+                                        name:
+                                            type: string
+                                            description: Product name
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /cart:
+        get:
+            summary: Get all cart items
+            description: Get all cart items
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/PopulatedCartItem'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /cart/add:
+        post:
+            summary: Add to cart
+            description: Add to cart
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to add new cart item
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CartUpdateForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /cart/update:
+        patch:
+            summary: Update cart item
+            description: Update cart item
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to update cart item
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CartUpdateForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /cart/remove:
+        patch:
+            summary: Remove selected cart item
+            description: Remove selected cart item
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Cart items need to be removed
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CartRemoveForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'                                            
 components:
     schemas:
         Error:
@@ -345,7 +897,365 @@ components:
             properties:
                 message:
                     type: string
- 
+        UserResponse:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                      name:
+                          type: string
+                      email:
+                          type: string
+                      isAdmin:
+                          type: boolean
+                      role:
+                          type: string
+                      phone:
+                          type: string
+                      address:
+                          type: string
+                      city:
+                          type: string
+                      country:
+                          type: string
+        UserResponseWithAccessToken:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/UserResponse'
+                - type: object
+                  properties:
+                      accessToken:
+                          type: string
+        User:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/UserResponseWithAccessToken'
+                - type: object
+                  properties:
+                      password:
+                          type: string
+                      isVerified:
+                          type: boolean
+                      emailVerificationToken:
+                          type: string
+                      resetPasswordToken:
+                          type: string
+                      resetPasswordTokenExpiryTime:
+                          type: integer  
+        Category: 
+            type: object                                     
+            properties:
+                name:
+                    type: string
+                    description: Category name
+                description: 
+                    type: string
+                    description: Category description
+        ReviewForm:
+            type: object
+            properties:
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                    minimum: 0
+                    maximum: 5
+                comment:
+                    type: string
+                    description: Review content
+        Review:
+            type: object
+            properties:
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                    minimum: 0
+                    maximum: 5
+                comment:
+                    type: string
+                    description: Review content
+                user:
+                    type: string
+                    description: User ID
+                timestamps:
+                    $ref: '#/components/schemas/Timestamps'
+        VariantForm:
+            type: object
+            properties:
+                size:
+                    type: string
+                    description: Variant size
+                color:
+                    type: string
+                    description: Variant color
+                quantity:
+                    type: number
+                    description: Variant quantity
+                price:
+                    type: number
+                    description: Variant price
+        VariantFormWithVariantId:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/VariantForm'
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                          description: Variant id
+                          nullable: true
+        Variant:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Variant object id.
+                product:
+                    type: string
+                    description: Product Id
+                size:
+                    type: string
+                    description: Variant size
+                color:
+                    type: string
+                    description: Variant color
+                quantity:
+                    type: number
+                    description: Variant quantity
+                price:
+                    type: number
+                    description: Variant price
+                timestamps:
+                    $ref: '#/components/schemas/Timestamps'
+        PopulatedVariant:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Variant object id.
+                product:
+                    type: object
+                    properties:
+                        _id:
+                            type: string
+                            description: Product Id
+                        name:
+                            type: string
+                            description: Product name
+                        image:
+                            type: string
+                            description: Product image's url
+                        description:
+                            type: string
+                            description: Product description
+                        category:
+                            type: string
+                            description: Product category id
+                        rating:
+                            type: number
+                            description: User ratings (5-stars rating)
+                        numReviews:
+                            type: number
+                            description: Number of reviews
+                        price:
+                            type: number
+                            description: Product price
+                        variants:
+                            type: array
+                            description: Array of product variant Ids
+                        totalSales:
+                            type: number
+                            description: Product total sales
+                        reviews:
+                            $ref: '#/components/schemas/Review'
+                        timestamps:
+                            $ref: '#/components/schemas/Timestamps'
+                size:
+                    type: string
+                    description: Variant size
+                color:
+                    type: string
+                    description: Variant color
+                quantity:
+                    type: number
+                    description: Variant quantity
+                price:
+                    type: number
+                    description: Variant price
+                timestamps:
+                    $ref: '#/components/schemas/Timestamps'
+        ProductSearchResponse:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Product Id
+                name:
+                    type: string
+                    description: Product name
+                image:
+                    type: string
+                    description: Product image's url
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                price:
+                    type: number
+                    description: Product price
+                category:
+                    type: string
+                    description: Product category id
+                totalSales:
+                    type: number
+                    description: Product total sales
+                timestamps:
+                    $ref: '#/components/schemas/Timestamps'
+        PaginatedProductsResponse:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: Current product page number
+                pages:
+                    type: integer
+                    description: Total product pages
+                products:
+                    type: array
+                    description: Total product in 1 page
+                    items:
+                    $ref: '#/components/schemas/Product'
+                totalProducts:
+                    type: integer
+                    description: Total products
+        ProductFormTemplate:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Product name
+                description:
+                    type: string
+                    description: Product description
+                image:
+                    type: string
+                    description: Product image's url
+                price:
+                    type: number
+                    description: Product price
+                category:
+                    type: string
+                    description: Product category id
+        ProductCreateForm:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/ProductFormTemplate'
+                - type: object
+                  properties:
+                      variants:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/VariantForm'
+        ProductUpdateForm:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/ProductFormTemplate'
+                - type: object
+                  properties:
+                      variants:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/VariantFormWithVariantId'
+        Product:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/ProductSearchResponse'
+                - type: object
+                  properties:
+                      description:
+                          type: string
+                          description: Product description
+                      reviews:
+                          type: array
+                          description: User reviews
+                          items:
+                              $ref: '#/components/schemas/Review'
+                      numReviews:
+                          type: number
+                          description: Number of reviews
+                      variants:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/VariantForm'
+                      __v:
+                          type: number
+                          description: Document version key
+        CartItem:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      variant:
+                          type: string
+                          description: Product variant Id
+                      quantity:
+                          type: number
+                          description: Cart item quantity
+        Cart:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      user:
+                          type: string
+                          description: User ID
+                      cartItems:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/CartItem'
+        PopulatedCartItem:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      variant:
+                          $ref: '#/components/schemas/PopulatedVariant'
+                      quantity:
+                          type: number
+                          description: Cart item quantity
+        PopulatedCart:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      user:
+                          type: string
+                          description: User ID
+                      cartItems:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/PopulatedCartItem'
+        CartUpdateForm:
+            type: object
+            properties:
+                variantId:
+                    type: string
+                    description: Cart item variant Id
+                quantity:
+                    type: number
+                    description: Cart item quantity
+        CartRemoveForm:
+            type: object
+            properties:
+                variantIds:
+                    type: array
+                    items:
+                        type: string                    
     securitySchemes:
         bearerAuth:
             type: apiKey
