@@ -873,7 +873,361 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'                                            
+                                $ref: '#/components/schemas/Error'               
+    /order:
+        post:
+            summary: Place new order
+            description: Place new order
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to place new order
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlaceOrderForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        get:
+            summary: User get orders
+            description: User get orders
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: pageSize
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Number of orders in 1 page
+                - name: pageNumber
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Page number
+                - name: dateOrder
+                  in: query
+                  required: false
+                  description: Sort orders by date
+                  schema:
+                      type: string
+                      enum:
+                          - newest
+                          - latest
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrdersResponse'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /order/all:
+        get:
+            summary: Admin get all orders
+            description: Admin get all orders
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: pageSize
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Number of orders in 1 page
+                - name: pageNumber
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Page number
+                - name: dateOrder
+                  in: query
+                  required: false
+                  description: Sort orders by date
+                  schema:
+                      type: string
+                      enum:
+                          - newest
+                          - latest
+                - name: orderStatus
+                  in: query
+                  required: false
+                  description: Filter orders by status
+                  schema:
+                      type: string
+                      enum:
+                          - Placed
+                          - Approved
+                          - Delivering
+                          - Paid
+                          - Completed
+                          - Failed
+                          - Cancelled
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrdersResponse'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /order/{id}:
+        get:
+            summary: Get order by id
+            description: Get order by id
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderDetail'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        patch:
+            summary: Update order status
+            description: Update order status
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+            requestBody:
+                description: Order status payload
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateOrderStatusForm'
+                required: true
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /order/{id}/cancel:
+        patch:
+            summary: Cancel order
+            description: Cancel order
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /order/{id}/orderItem/{orderItemId}/product/{productId}:
+        post:
+            summary: Review product by order item id
+            description: Review product by order item id
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+                - name: orderItemId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order item id
+                - name: productId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Product id
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReviewForm'
+            responses:
+                '201':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'                                                             
 components:
     schemas:
         Error:
@@ -1255,7 +1609,203 @@ components:
                 variantIds:
                     type: array
                     items:
-                        type: string                    
+                        type: string    
+        ShippingAddress:
+            type: object
+            properties:
+                address:
+                    type: string
+                    description: Shipping address
+                city:
+                    type: string
+                    description: Shipping city
+                postalCode:
+                    type: string
+                    description: Shipping postal code
+                country:
+                    type: string
+                    description: Shipping country
+        ContactInformation:
+            type: object
+            properties:
+                phone:
+                    type: string
+                    description: Customer phone number
+                email:
+                    type: string
+                    description: Customer email                           
+        RawOrderItem:
+            type: object
+            properties:
+                variant:
+                    type: string
+                    description: Ordered item variant id
+                product:
+                    type: string
+                    description: Ordered item product id
+                name:
+                    type: string
+                    description: Ordered item product name
+                image:
+                    type: string
+                    description: Ordered item product image
+                quantity:
+                    type: string
+                    description: Ordered item variant quantity
+                size:
+                    type: string
+                    description: Ordered item variant size
+                color:
+                    type: string
+                    description: Ordered item variant color
+                price:
+                    type: number
+                    description: Ordered item variant price
+        OrderItem:
+            allOf:
+                - $ref: '#/components/schemas/RawOrderItem'
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                          description: Ordered item id
+        OrderStatus:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      status:
+                          type: string
+                          description: Order status
+                      description:
+                          type: string
+                          description: Order status description
+                      _id:
+                          type: string
+                          description: Order status history id
+        OrderCommonFields:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: Ordered user name
+                shippingAddress:
+                    $ref: '#/components/schemas/ShippingAddress'
+                paymentMethod:
+                    type: string
+                    description: Payment method
+                taxPrice:
+                    type: number
+                    description: Tax price
+                shippingPrice:
+                    type: number
+                    description: Shipping price
+                totalPrice:
+                    type: number
+                    description: Total price
+                contactInformation:
+                    $ref: '#/components/schemas/ContactInformation'
+        OrderDetail:
+            allOf:
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                          description: Order id
+                      user:
+                          type: string
+                          description: User id
+                      username:
+                          type: string
+                          description: User name
+                      orderItems:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/OrderItem'
+                      status:
+                          type: string
+                          description: Order current status
+                      statusHistory:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/OrderStatus'
+                - $ref: '#/components/schemas/OrderCommonFields'
+                - $ref: '#/components/schemas/Timestamps'
+        PlaceOrderForm:
+            allOf:
+                - type: object
+                  properties:
+                      orderItems:
+                          type: array
+                          items:
+                              type: object
+                              properties:
+                                  variant:
+                                      type: string
+                                      description: Ordered item variant id
+                                  quantity:
+                                      type: string
+                                      description: Ordered item variant quantity
+                - $ref: '#/components/schemas/OrderCommonFields'
+        PaginatedOrdersResponse:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: Current page number
+                pages:
+                    type: integer
+                    description: Total pages
+                totalOrders:
+                    type: integer
+                    description: Total orders
+                orders:
+                    type: array
+                    description: Total orders in 1 page
+                    items:
+                        allOf:
+                            - type: object
+                              properties:
+                                  _id:
+                                      type: string
+                                      description: Order id
+                                  user:
+                                      type: string
+                                      description: User id
+                                  username:
+                                      type: string
+                                      description: Ordered user name
+                                  orderItems:
+                                      type: array
+                                      items:
+                                          $ref: '#/components/schemas/OrderItem'
+                                  status:
+                                      type: string
+                                      description: Order current status
+                                  statusHistory:
+                                      type: array
+                                      items:
+                                          $ref: '#/components/schemas/OrderStatus'
+                            - $ref: '#/components/schemas/OrderCommonFields'
+                            - $ref: '#/components/schemas/Timestamps'
+        UpdateOrderStatusForm:
+            type: object
+            properties:
+                status:
+                    type: string
+                    description: New order status
+                    enum:
+                        - Placed
+                        - Approved
+                        - Delivering
+                        - Paid
+                        - Completed
+                        - Failed
+                        - Cancelled
+                description:
+                    type: string
+                    description: Description of the new status                                                           
     securitySchemes:
         bearerAuth:
             type: apiKey
