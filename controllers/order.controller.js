@@ -13,67 +13,6 @@ import {
   validateConstants,
 } from "../utils/searchConstants.js";
 
-// const placeOrder = async (req, res) => {
-//     const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice, phone } =
-//         req.body;
-
-//     if (orderItems && orderItems.length === 0) {
-//         res.status(400);
-//         throw new Error('No order items');
-//     }
-//     const order = new Order({
-//         orderItems,
-//         user: req.user._id,
-//         shippingAddress,
-//         paymentMethod,
-//         itemsPrice,
-//         taxPrice,
-//         shippingPrice,
-//         totalPrice,
-//         phone,
-//     });
-//     for (let i = 0; i < orderItems.length; i++) {
-//         await Product.findOneAndUpdate({ _id: orderItems[i].product }, { $inc: { countInStock: -orderItems[i].qty } });
-//     }
-//     const createOrder = await order.save();
-//     res.status(201).json(createOrder);
-// };
-
-// const getAllOrders = async (req, res) => {
-//     const orders = await Order.find({});
-//     const products = await Product.find({}).sort({ _id: -1 });
-//     let AllOrder = [];
-//     let Arr = {};
-//     let ArrQuatity = [];
-//     for (let order of orders) {
-//         for (let ordr of order.orderItems) {
-//             AllOrder.push(ordr);
-//         }
-//     }
-//     for (let i = 0; i < AllOrder.length - 1; i++) {
-//         if (Arr[AllOrder[i].name] != undefined) Arr[AllOrder[i].name]++;
-//         else Arr[AllOrder[i].name] = 1;
-//     }
-//     let newarr = [];
-//     ArrQuatity = Object.entries(Arr).sort(function (a, b) {
-//         return b[1] - a[1];
-//     });
-//     for (let i = 0; i < ArrQuatity.length; i++) {
-//         for (let j = 0; j < products.length; j++) {
-//             if (ArrQuatity[i][0] === products[j].name) {
-//                 newarr.push(products[j]);
-//                 break;
-//             }
-//         }
-//     }
-//     res.json(newarr);
-// };
-
-// const getAllOrdersByAdmin = async (req, res) => {
-//     const orders = await Order.find({}).sort({ _id: -1 }).populate('user', 'id name email');
-//     res.json(orders);
-// };
-
 const getOrdersByUserId = async (req, res) => {
   const pageSize = Number(req.query.pageSize) || 20; //EDIT HERE
   const page = Number(req.query.pageNumber) || 1;
@@ -107,7 +46,7 @@ const getOrderById = async (req, res) => {
   res.json(order);
 };
 
-const getOrders = async (req, res) => {
+const getOrdersAndPaginate = async (req, res) => {
   const pageSize = Number(req.query.pageSize) || 20; //EDIT HERE
   const page = Number(req.query.pageNumber) || 1;
   const dateOrderSortBy = validateConstants(
@@ -137,81 +76,7 @@ const getOrders = async (req, res) => {
   });
 };
 
-// const confirmOrderIsPaid = async (req, res) => {
-//     const order = await Order.findById(req.params.id);
-
-//     if (order) {
-//         order.isPaid = true;
-//         order.paidAt = Date.now();
-//         order.paymentResult = {
-//             id: req.body.id,
-//             status: req.body.status,
-//             update_time: req.body.update_time,
-//             email_address: req.body.email_address,
-//         };
-//         // order.orderItems.map((orderItem)=>{
-//         // const product = await Product.findById(orderItem.product);
-//         // if(product){
-//         //     product.numberOfOrder += orderItem.qty;
-//         //     const updatedProduct = await Product.save();}
-//         // })
-//         const updatedOrder = await order.save();
-//         res.json(updatedOrder);
-//     } else {
-//         res.status(404);
-//         throw new Error('Order Not Found');
-//     }
-// };
-
-// const confirmOrderIsDelivered = async (req, res) => {
-//     const order = await Order.findById(req.params.id);
-
-//     if (order) {
-//         order.isDelivered = true;
-//         order.deliveredAt = Date.now();
-
-//         const updatedOrder = await order.save();
-//         res.json(updatedOrder);
-//     } else {
-//         res.status(404);
-//         throw new Error('Order Not Found');
-//     }
-// };
-
-// const cancelOrderByAdmin = async (req, res) => {
-//     const order = await Order.findById(req.params.id);
-
-//     if (order) {
-//         if (order.isPaid != true) {
-//             order.cancel = 1;
-//             const updatedOrder = await order.save();
-//             res.json(updatedOrder);
-//         }
-//     } else {
-//         res.status(404);
-//         throw new Error('Order Not Found');
-//     }
-// };
-
-// const uncancel = async (req, res) => {
-//     const order = await Order.findById(req.params.id);
-
-//     if (order != undefined || req.user._id == order.user) {
-//         if (order.isDelivered != true) {
-//             order.cancel = 1;
-//             const updatedOrder = await order.save();
-//             res.json(updatedOrder);
-//         } else {
-//             res.status(404);
-//             throw new Error('Can not cancel');
-//         }
-//     } else {
-//         res.status(404);
-//         throw new Error('Order Not Found');
-//     }
-// };
-
-const getOrderShippingAddress = async (req, res) => {
+const getOrderShippingAddressByUserId = async (req, res) => {
   const order = await Order.find({ user: req.user._id });
   if (order) {
     res.json(order[order.length - 1].shippingAddress);
@@ -466,7 +331,7 @@ const cancelOrder = async (req, res, next) => {
   }
 };
 
-const deleteOrderById = async (req, res) => {
+const deleteOrder = async (req, res) => {
   const deletedOrder = await Order.findByIdAndDelete(req.params.id);
   if (!deletedOrder) {
     res.status(400);
@@ -538,14 +403,15 @@ Array.prototype.findLastIndex = function (callbackFn) {
 };
 
 const orderController = {
-  placeOrder,
   getOrderById,
   getOrdersByUserId,
-  getOrders,
-  getOrderShippingAddress,
+  getOrdersAndPaginate,
+  getOrderShippingAddressByUserId,
+  placeOrder,
   updateOrderStatus,
   cancelOrder,
   reviewProductByOrderItemId,
+  deleteOrder,
 };
 
 export default orderController;

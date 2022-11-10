@@ -27,7 +27,7 @@ cartRouter.get(
   "/",
   protect,
   auth("user"),
-  expressAsyncHandler(cartController.getCart)
+  expressAsyncHandler(cartController.getCartByUserId)
 );
 
 export default cartRouter;

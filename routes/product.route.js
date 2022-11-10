@@ -7,14 +7,8 @@ import { multerUpload } from "../utils/multer.js";
 const productRouter = express.Router();
 
 productRouter.get(
-  "/ProductAll",
+  "/all",
   expressAsyncHandler(productController.getAllProducts)
-);
-productRouter.get(
-  "/admin",
-  protect,
-  auth("admin"),
-  expressAsyncHandler(productController.getAllProductsByAdmin)
 );
 productRouter.get(
   "/search",
@@ -50,6 +44,9 @@ productRouter.post(
   multerUpload.single("productImage"),
   expressAsyncHandler(productController.createProduct)
 );
-productRouter.get("/", expressAsyncHandler(productController.getProducts));
+productRouter.get(
+  "/",
+  expressAsyncHandler(productController.getProductsAndPaginate)
+);
 
 export default productRouter;
