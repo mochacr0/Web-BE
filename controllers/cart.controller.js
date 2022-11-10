@@ -2,7 +2,7 @@ import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
 import Variant from "../models/variant.model.js";
 
-const getCart = async (req, res) => {
+const getCartByUserId = async (req, res) => {
   const cart = await Cart.findOne({ user: req.user._id }).populate({
     path: "cartItems.variant",
     populate: { path: "product" },
@@ -225,5 +225,10 @@ const removeCartItems = async (req, res) => {
   res.json({ message: "Cart items are removed" });
 };
 
-const cartController = { getCart, addToCart, updateCartItem, removeCartItems };
+const cartController = {
+  getCartByUserId,
+  addToCart,
+  updateCartItem,
+  removeCartItems,
+};
 export default cartController;

@@ -1,12 +1,12 @@
 import Category from "../models/category.model.js";
 import { checkParams } from "../utils/validate.js";
 
-// const findAll = async (req, res) => {
-//   const exsitingCategories = await Category.find();
-//   res.json(exsitingCategories);
-// };
+const getAllCategories = async (req, res) => {
+  const exsitingCategories = await Category.find();
+  res.json(exsitingCategories);
+};
 
-const findById = async (req, res) => {
+const getCategoryById = async (req, res) => {
   const { categoryId } = req.params;
   const existingCategory = await Category.findById(categoryId);
   if (!existingCategory) {
@@ -17,7 +17,7 @@ const findById = async (req, res) => {
 };
 
 //changed response
-const findAndPaginate = async (req, res) => {
+const getCategoriesAndPaginate = async (req, res) => {
   const page = req.query.page || 0;
   const pageSize = req.query.pageSize || 10;
   const countCategoryDocuments = Category.countDocuments();
@@ -38,7 +38,7 @@ const findAndPaginate = async (req, res) => {
   res.json(paginatedCategories);
 };
 
-const create = async (req, res) => {
+const createCategory = async (req, res) => {
   const { name, description } = req.body;
   const error = checkParams({ name, description });
   if (error.length != 0) {
@@ -59,7 +59,7 @@ const create = async (req, res) => {
   res.status(201).json({ message: `Category is added` });
 };
 
-const remove = async (req, res) => {
+const removeCategory = async (req, res) => {
   const { categoryId } = req.params;
   const deletedCategory = await Category.findByIdAndDelete(req.params.id);
   if (!deletedCategory) {
@@ -69,7 +69,7 @@ const remove = async (req, res) => {
   res.json({ message: "Category was delete successfully" });
 };
 
-const update = async (req, res) => {
+const updateCategory = async (req, res) => {
   const { name, description } = req.body;
   const { categoryId } = req.params;
   const error = checkParams({ name, description });
@@ -89,11 +89,11 @@ const update = async (req, res) => {
 };
 
 const categoryController = {
-  // findAll,
-  findById,
-  findAndPaginate,
-  create,
-  update,
-  remove,
+  getAllCategories,
+  getCategoryById,
+  getCategoriesAndPaginate,
+  createCategory,
+  updateCategory,
+  removeCategory,
 };
 export default categoryController;

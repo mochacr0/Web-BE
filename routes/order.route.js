@@ -15,7 +15,7 @@ orderRouter.get(
   "/all",
   protect,
   auth("admin"),
-  asyncHandler(orderController.getOrders)
+  asyncHandler(orderController.getOrdersAndPaginate)
 );
 orderRouter.get(
   "/:id",

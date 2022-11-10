@@ -18,32 +18,32 @@ const getAllProducts = async (req, res) => {
   res.json(productSlice);
 };
 
-const getAllProductsByAdmin = async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.pageNumber) || 1;
-  let search = {};
-  if (req.query.keyword) {
-    search.name = {
-      $regex: req.query.keyword,
-      $options: "i",
-    };
-  }
-  if (req.query.category) {
-    search.category = req.query.category;
-  }
-  const count = await Product.countDocuments({ ...search });
-  const products = await Product.find({ ...search })
-    .populate(`category`)
-    .limit(pageSize)
-    .skip(pageSize * (page - 1))
-    .sort({ createdAt: -1 });
-  res.json({
-    products,
-    page,
-    pages: Math.ceil(count / pageSize),
-    countProducts: count,
-  });
-};
+// const findProductAndPaginate = async (req, res) => {
+//   const pageSize = 10;
+//   const page = Number(req.query.pageNumber) || 1;
+//   let search = {};
+//   if (req.query.keyword) {
+//     search.name = {
+//       $regex: req.query.keyword,
+//       $options: "i",
+//     };
+//   }
+//   if (req.query.category) {
+//     search.category = req.query.category;
+//   }
+//   const count = await Product.countDocuments({ ...search });
+//   const products = await Product.find({ ...search })
+//     .populate(`category`)
+//     .limit(pageSize)
+//     .skip(pageSize * (page - 1))
+//     .sort({ createdAt: -1 });
+//   res.json({
+//     products,
+//     page,
+//     pages: Math.ceil(count / pageSize),
+//     countProducts: count,
+//   });
+// };
 
 const getProductById = async (req, res) => {
   const product = await Product.findById(req.params.id).populate("variants");
@@ -278,8 +278,8 @@ const createProduct = async (req, res) => {
   res.json({ message: "Product is added" });
 };
 
-const getProducts = async (req, res) => {
-  const pageSize = Number(req.query.pageSize) || 12; //EDIT HERE
+const getProductsAndPaginate = async (req, res) => {
+  const pageSize = Number(req.query.pageSize) || 12;
   const page = Number(req.query.pageNumber) || 1;
   const dateOrderSortBy = validateConstants(
     productQueryParams,
@@ -301,12 +301,6 @@ const getProducts = async (req, res) => {
     ...priceOrderSortBy,
     ...dateOrderSortBy,
   };
-  /* let statusFilter;
-    if (!req.user || req.user.isAdmin == false) {
-        statusFilter = validateConstants(productQueryParams, 'status', 'default');
-    } else if (req.user.isAdmin) {
-        statusFilter = validateConstants(productQueryParams, 'status', req.query.status);
-    } */
   const keyword = req.query.keyword
     ? {
         name: {
@@ -320,17 +314,6 @@ const getProducts = async (req, res) => {
   const categoryId = req.query.category || null;
   const category = await Category.findOne({ _id: categoryId });
   const categoryFilter = category ? { category: category } : {};
-  /* if (!req.query.category) {
-        categoryName = 'All';
-    }
-    let categoryIds;
-    if (categoryName == 'All') {
-        //categoryIds = await Category.find({ ...statusFilter }).select({ _id: 1 });
-    } else {
-        //categoryIds = await Category.find({ name: categoryName, ...statusFilter }).select({ _id: 1 });
-        categoryIds = await Category.find({ name: categoryName }).select({ _id: 1 });
-    } */
-  //(categoryFilter);
   const productFilter = {
     ...keyword,
     ...categoryFilter,
@@ -341,11 +324,6 @@ const getProducts = async (req, res) => {
     ...ratingFilter(parseInt(req.query.rating)),
   };
   const count = await Product.countDocuments(productFilter);
-  //Check if product match keyword
-  if (count == 0) {
-    res.status(204);
-    res.json({ message: "No products found for this keyword" });
-  }
   //else
   const products = await Product.find(productFilter)
     .limit(pageSize)
@@ -383,9 +361,8 @@ const getProductSearchResults = async (req, res) => {
 
 const productController = {
   getProductById,
-  getProducts,
+  getProductsAndPaginate,
   getAllProducts,
-  getAllProductsByAdmin,
   getProductSearchResults,
   reviewProduct,
   createProduct,

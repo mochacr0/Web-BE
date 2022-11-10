@@ -200,10 +200,6 @@ const cancelResetPassword = async (req, res) => {
     .createHash("sha256")
     .update(resetPasswordToken)
     .digest("hex");
-
-  console.log(
-    Date.now() + process.env.RESET_PASSWORD_EXPIRY_TIME_IN_MINUTE * 60 * 1000
-  );
   const user = await User.findOneAndUpdate(
     {
       resetPasswordToken: hashedToken,
