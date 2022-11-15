@@ -4,13 +4,13 @@ import Category from "../models/category.model.js";
 import Order from "../models/order.model.js";
 import Cart from "../models/cart.model.js";
 import Variant from "../models/variant.model.js";
+import { cloudinaryUpload, cloudinaryRemove } from "../utils/cloudinary.js";
 import {
   productQueryParams,
   validateConstants,
   priceRangeFilter,
   ratingFilter,
 } from "../utils/searchConstants.js";
-import { cloudinaryUpload, cloudinaryRemove } from "../utils/cloudinary.js";
 
 const getAllProducts = async (req, res) => {
   const products = await Product.find({}).sort({ _id: -1 });
@@ -106,18 +106,19 @@ const deleteProduct = async (req, res) => {
     throw new Error("Product not found");
     // res.json(newCart);
   }
-  const publicId = deletedProduct.image.split(".").pop();
+  //extract product image name
+  const cloudinaryImage = deletedProduct.image.match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0].split(".").shift();
   const removeCartItem = Cart.updateMany(
     {},
     { $pull: { cartItems: { deletedProduct: req.params.id } } }
   );
-  const removeImage = cloudinaryRemove(publicId);
+  const removeImage = cloudinaryRemove(cloudinaryImage);
   const removeVariants = Variant.deleteMany({ product: deleteProduct._id });
   await Promise.all([removeCartItem, removeImage, removeVariants]);
   res.json({ message: "Product deleted" });
 };
 
-const updateProduct = async (req, res) => {
+const updateProduct = async (req, res, next) => {
   const { name, price, description, category, image, countInStock } = req.body;
   let variants = JSON.parse(req.body.variants);
   const product = await Product.findById(req.params.id);
@@ -155,8 +156,8 @@ const updateProduct = async (req, res) => {
       throw new Error("Error while uploading image");
     }
     product.image = image.secure_url.toString();
-    const publicId = product.image.split(".").pop();
-    const removeOldImageCloudinary = cloudinaryRemove(publicId);
+    const cloudinaryImage = product.image.match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0].split(".").shift();
+    const removeOldImageCloudinary = cloudinaryRemove(cloudinaryImage);
     const removeNewImageLocal = fs.promises.unlink(req.file.path);
     await Promise.all([removeOldImageCloudinary, removeNewImageLocal]);
   }
