@@ -4,6 +4,8 @@ import productRouter from "./product.route.js";
 import orderRouter from "./order.route.js";
 import cartRouter from "./cart.route.js";
 import userRouter from "./user.route.js";
+import testRouter from "./test.route.js";
+
 
 const routes = (app) => {
   app.use("/api/auth", authRouter);
@@ -12,6 +14,7 @@ const routes = (app) => {
   app.use("/api/carts", cartRouter);
   app.use("/api/orders", orderRouter);
   app.use("/api/users", userRouter);
+  app.use("/api/test", testRouter);
 };
 
 export default routes;
