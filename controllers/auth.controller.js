@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import schedule, { scheduleJob } from "node-schedule";
 import crypto from "crypto";
 import User from "../models/user.model.js";
@@ -49,7 +48,6 @@ const register = async (req, res, next) => {
   });
   const emailVerificationToken = user.getEmailVerificationToken();
   await user.save();
-  const url = `http://localhost:3000/register/confirm?emailVerificationToken=${emailVerificationToken}`;
   const html = htmlMailVerify(emailVerificationToken);
 
   //start cron-job
@@ -221,38 +219,9 @@ const cancelResetPassword = async (req, res) => {
   res.json({ message: "Canceling reset password succeed" });
 };
 
-const changePassword = async (req, res) => {
-  const { currentPassword, newPassword } = req.body;
-  if (!currentPassword && currentPassword.length() <= 0) {
-    res.status(400);
-    throw new Error("Current password is not valid");
-  }
-  if (!newPassword && newPassword.length() <= 0) {
-    res.status(400);
-    throw new Error("New password is not valid");
-  }
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-  if (await user.matchPassword(req.body.currentPassword)) {
-    user.password = newPassword;
-    await user.save();
-    res.status(200);
-    res.json({
-      token: generateAuthToken({ _id: user._id }),
-    });
-  } else {
-    res.status(400);
-    throw new Error("Current password is not correct!");
-  }
-};
-
 const authController = {
   login,
   register,
-  changePassword,
   verifyEmail,
   forgotPassword,
   resetPassword,
