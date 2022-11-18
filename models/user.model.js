@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema(
     role: {
       type: String,
       required: false,
-      default: null,
+      default: "user",
     },
     emailVerificationToken: {
       type: String,

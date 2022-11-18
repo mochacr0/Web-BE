@@ -20,6 +20,8 @@ tags:
       description: Everything about Products
     - name: Cart
       description: Everything about Carts
+    - name: Order
+      description: Everything about Orders      
 paths:
     /auth/login:
         post:
@@ -39,28 +41,28 @@ paths:
                                 password:
                                     type: string
                                     nullable: false
+                            example:
+                                email: "user@gmail.com"
+                                password: "123456789"
             responses:
                 '200':
                     description: Success
                     content:
                         application/json:
-                            schema:
-                                type: object
-                                properties:
-                                  accessToken:
-                                    type: string
+                            schema: 
+                                $ref: "#/components/schemas/UserResponse"
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/register:
         post:
             tags:
@@ -71,20 +73,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            type: object
-                            properties:
-                                name:
-                                    type: string
-                                    nullable: false
-                                email:
-                                    type: string
-                                    nullable: false
-                                password:
-                                    type: string
-                                    nullable: false
-                                phone:
-                                    type: string
-                                    nullable: false
+                            $ref: "#/components/schemas/UserRegisterForm"
             responses:
                 '200':
                     description: Success
@@ -97,13 +86,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/verify-email:
         patch:
             tags:
@@ -131,13 +120,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/cancel-verify-email:
         patch:
             tags:
@@ -162,13 +151,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/forgot-password:
         patch:
             tags:
@@ -184,6 +173,8 @@ paths:
                                     type: string
                                     description: Email need to be reset
                                     nullable: false
+                            example:
+                                email: "user@gmail.com"
             responses:
                 '200':
                     description: Success
@@ -196,13 +187,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/reset-password:
         patch:
             tags:
@@ -230,6 +221,10 @@ paths:
                                 confirmPassword:
                                     type: string
                                     nullable: false
+                            example: 
+                                email: "user@gmail.com"
+                                newPassword: "123456789"
+                                confirmPassword: "123456789"                                                      
             responses:
                 '200':
                     description: Success
@@ -242,13 +237,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/cancel-reset-password:
         patch:
             tags:
@@ -273,13 +268,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/change-password:
         patch:
             tags:
@@ -299,6 +294,9 @@ paths:
                                 newPassword:
                                     type: string
                                     nullable: false
+                            example:    
+                                currentPassword: "123456789"
+                                newPassword: "12345678910"
             responses:
                 '200':
                     description: Success
@@ -315,19 +313,229 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
+    /users/change-password:
+        patch:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: Change password
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                currentPassword:
+                                    type: string
+                                    nullable: false
+                                newPassword:
+                                    type: string
+                                    nullable: false
+                            example: 
+                                currentPassword: "123456789"
+                                newPassword: "12345678910"
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    accessToken:
+                                        type: string
+                                        nullable: false
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /users/profile:
+        get:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: User get profile
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        put:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: User update profile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserUpdateProfileForm"
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /users:
+        get:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: Admin get all user profiles
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/User'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'               
+    /users/{id}:
+        delete:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: Admin delete user by id
+            parameters:
+                - name: id
+                  in: path
+                  description: User Id
+                  required: true
+                  schema:
+                      type: string            
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'                                
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                                                  
     /category:
         patch:
             tags:
@@ -352,14 +560,14 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'                   
-    /product:
+                                $ref: '#/components/schemas/InternalServerError'                   
+    /products:
         post:
             description: Create new product
             summary: Create new product
@@ -386,25 +594,25 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '403':
                     description: Forbidden
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/ForbiddenError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
         get:
             description: Get a part of products to show on shop client
             summary: Get a part of products to show on shop client
@@ -495,8 +703,8 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
-    /product/{id}:
+                                $ref: '#/components/schemas/InternalServerError'
+    /products/{id}:
         get:
             summary: Get product details with given id
             description: Get product details with given id
@@ -521,13 +729,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
         put:
             summary: Update existed product
             description: Update existed product
@@ -561,31 +769,31 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '403':
                     description: Forbidden
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/ForbiddenError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
         delete:
             summary: Delete existed product
             description: Delete existed product
@@ -612,26 +820,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '403':
                     description: Forbidden
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/ForbiddenError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
-    /product/{id}/review:
+                                $ref: '#/components/schemas/InternalServerError'
+    /products/{id}/review:
         post:
             summary: Post new review
             description: Post new review
@@ -665,26 +873,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '403':
                     description: Forbidden
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/ForbiddenError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
-    /product/search:
+                                $ref: '#/components/schemas/InternalServerError'
+    /products/search:
         get:
             summary: Get product search results
             description: Get product search results
@@ -705,20 +913,13 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    type: object
-                                    properties:
-                                        _id:
-                                            type: string
-                                            description: Product id
-                                        name:
-                                            type: string
-                                            description: Product name
+                                    $ref: "#/components/schemas/ProductsSearchResult"
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /cart:
         get:
             summary: Get all cart items
@@ -741,19 +942,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /cart/add:
         post:
             summary: Add to cart
@@ -781,19 +982,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /cart/update:
         patch:
             summary: Update cart item
@@ -821,19 +1022,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /cart/remove:
         patch:
             summary: Remove selected cart item
@@ -861,19 +1062,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'               
+                                $ref: '#/components/schemas/InternalServerError'               
     /order:
         post:
             summary: Place new order
@@ -897,29 +1098,29 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Message'
                 '400':
-                    description: Unauthorized
+                    description: Bad Request
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
         get:
             summary: User get orders
             description: User get orders
@@ -961,19 +1162,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /order/all:
         get:
             summary: Admin get all orders
@@ -1030,19 +1231,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /order/{id}:
         get:
             summary: Get order by id
@@ -1070,19 +1271,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
         patch:
             summary: Update order status
             description: Update order status
@@ -1116,19 +1317,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /order/{id}/cancel:
         patch:
             summary: Cancel order
@@ -1156,19 +1357,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /order/{id}/orderItem/{orderItemId}/product/{productId}:
         post:
             summary: Review product by order item id
@@ -1215,30 +1416,121 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '404':
                     description: Not Found
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/NotFoundError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'                                                             
+                                $ref: '#/components/schemas/InternalServerError'                                                             
 components:
     schemas:
-        Error:
+        BadRequestError:
             type: object
             properties:
+                status:
+                    type: integer
+                    description: error status
                 message:
                     type: string
                     description: error message
                 stack:
                     type: string
                     description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:    
+                status: '400'
+                message: 'Invalid request body'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'              
+        UnauthorizedError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '401'
+                message: 'Authentication failed"'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'  
+        ForbiddenError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '401'
+                message: 'Authentication failed"'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'                      
+        NotFoundError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '404'
+                message: "Requested item wasn't found!"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        InternalServerError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '500'
+                message: "Oops, looks like we're having a problem. try again later"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'                                        
         Timestamps:
             type: object
             properties:
@@ -1246,11 +1538,57 @@ components:
                     type: string
                 updatedAt:
                     type: string
+            example:
+                createdAt: "2022-08-14T10:11:16.681Z"
+                updatedAt: "2022-08-21T06:47:30.131Z"    
         Message:
             type: object
             properties:
                 message:
                     type: string
+            example:
+                message: "Success"
+        UserRegisterForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    nullable: false
+                email:
+                    type: string
+                    nullable: false
+                password:
+                    type: string
+                    nullable: false
+                phone:
+                    type: string
+                    nullable: false
+            example:
+                name: "user"
+                email: "user@gmail.com"
+                password: "123456789"
+                phone: "0123456789"
+        UserUpdateProfileForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    nullable: false
+                phone:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+                country:
+                    type: string
+            example:
+                name: "user"
+                password: "123456789"
+                phone: "0123456789"
+                address: "District 1"
+                city: "HCM"
+                country: "VN"                  
         UserResponse:
             type: object
             allOf:
@@ -1263,8 +1601,6 @@ components:
                           type: string
                       email:
                           type: string
-                      isAdmin:
-                          type: boolean
                       role:
                           type: string
                       phone:
@@ -1275,6 +1611,15 @@ components:
                           type: string
                       country:
                           type: string
+                  example: 
+                    _id: "00a0aa00aa0000a000a00a0a"
+                    name: "user"
+                    email: "user@gmail.com"
+                    role: "user"
+                    phone: "0123456789"
+                    address: "District 1"
+                    city: "HCM"
+                    country: "VN"    
         UserResponseWithAccessToken:
             type: object
             allOf:
@@ -1283,10 +1628,12 @@ components:
                   properties:
                       accessToken:
                           type: string
+                  example:
+                    accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7Il9pZCI6IjYyZjhjYTQ0ZWU4MTQyZTAyNGE5N2QyZSJ9LCJpYXQiOjE2Njg3ODk3MTcsImV4cCI6MTY2OTA0ODkxN30.nZIb3tAxGAzI7YEvsV-prVAuLVvKMxwVS9-4EfnZx14"
         User:
             type: object
             allOf:
-                - $ref: '#/components/schemas/UserResponseWithAccessToken'
+                - $ref: '#/components/schemas/UserResponse'
                 - type: object
                   properties:
                       password:
@@ -1299,6 +1646,12 @@ components:
                           type: string
                       resetPasswordTokenExpiryTime:
                           type: integer  
+                  example:
+                      password: "123456"
+                      isVerified: true
+                      emailVerificationToken: "token" 
+                      resetPasswordToken: "token"
+                      resetPasswordTokenExpiryTime: 10
         Category: 
             type: object                                     
             properties:
@@ -1319,9 +1672,15 @@ components:
                 comment:
                     type: string
                     description: Review content
+            example:
+                rating: 5
+                comment: "Good"
         Review:
             type: object
-            properties:
+            allOf:
+            - $ref: '#/components/schemas/Timestamps'
+            - type: object
+              properties:
                 rating:
                     type: number
                     description: User ratings (5-stars rating)
@@ -1332,9 +1691,11 @@ components:
                     description: Review content
                 user:
                     type: string
-                    description: User ID
-                timestamps:
-                    $ref: '#/components/schemas/Timestamps'
+                    description: User ID     
+              example:
+                rating: 5
+                comment: "Good"
+                user: "00a0aa00aa0000a000a00a0a"           
         VariantForm:
             type: object
             properties:
@@ -1350,6 +1711,11 @@ components:
                 price:
                     type: number
                     description: Variant price
+            example:
+                size: "S"
+                color: "Blue"
+                quantity: 10
+                price: 100
         VariantFormWithVariantId:
             type: object
             allOf:
@@ -1360,29 +1726,32 @@ components:
                           type: string
                           description: Variant id
                           nullable: true
-        Variant:
-            type: object
-            properties:
-                _id:
-                    type: string
-                    description: Variant object id.
-                product:
-                    type: string
-                    description: Product Id
-                size:
-                    type: string
-                    description: Variant size
-                color:
-                    type: string
-                    description: Variant color
-                quantity:
-                    type: number
-                    description: Variant quantity
-                price:
-                    type: number
-                    description: Variant price
-                timestamps:
-                    $ref: '#/components/schemas/Timestamps'
+                  example: 
+                    _id: "00a0aa00aa0000a000a00a0a"
+        # Variant:
+        #     type: object
+        #     allOf:
+        #       - $ref: '#/components/schemas/Timestamps'
+        #       - type: object
+        #         properties:
+        #             _id:
+        #                 type: string
+        #                 description: Variant object id.
+        #             product:
+        #                 type: string
+        #                 description: Product Id
+        #             size:
+        #                 type: string
+        #                 description: Variant size
+        #             color:
+        #                 type: string
+        #                 description: Variant color
+        #             quantity:
+        #                 type: number
+        #                 description: Variant quantity
+        #             price:
+        #                 type: number
+        #                 description: Variant price                  
         PopulatedVariant:
             type: object
             properties:
@@ -1449,23 +1818,6 @@ components:
                 name:
                     type: string
                     description: Product name
-                image:
-                    type: string
-                    description: Product image's url
-                rating:
-                    type: number
-                    description: User ratings (5-stars rating)
-                price:
-                    type: number
-                    description: Product price
-                category:
-                    type: string
-                    description: Product category id
-                totalSales:
-                    type: number
-                    description: Product total sales
-                timestamps:
-                    $ref: '#/components/schemas/Timestamps'
         PaginatedProductsResponse:
             type: object
             properties:
@@ -1545,6 +1897,18 @@ components:
                       __v:
                           type: number
                           description: Document version key
+        ProductsSearchResult:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Product id
+                name:
+                    type: string
+                    description: Product name      
+            example:
+                _id: "00a0aa00aa0000a000a00a0a"
+                name: "Amazon Essentials Women's Tank Swing Dress"                                                            
         CartItem:
             type: object
             allOf:
@@ -1805,7 +2169,38 @@ components:
                         - Cancelled
                 description:
                     type: string
-                    description: Description of the new status                                                           
+                    description: Description of the new status 
+    examples:
+        BadRequestError: 
+            value:
+                status: '400'
+                message: 'Invalid request body'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        UnauthorizedError: 
+            value:
+                status: '401'
+                message: 'Authentication failed"'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        ForbiddenError: 
+            value:
+                status: '403'
+                message: "You don't have permission to perform this operation!"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        NotFoundError: 
+            value: 
+                status: '404'
+                message: "Requested item wasn't found!"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        InternalServerError: 
+            value:
+                status: '500'
+                message: "Oops, looks like we're having a problem. try again later"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'                                                       
     securitySchemes:
         bearerAuth:
             type: apiKey

@@ -20,10 +20,6 @@ authRouter.patch(
 );
 authRouter.post("/register", expressAsyncHandler(authController.register));
 authRouter.patch(
-  "/change-password",
-  expressAsyncHandler(authController.changePassword)
-);
-authRouter.patch(
   "/forgot-password",
   expressAsyncHandler(authController.forgotPassword)
 );
