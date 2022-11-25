@@ -15,7 +15,7 @@ productRouter.get(
   expressAsyncHandler(productController.getProductSearchResults)
 );
 productRouter.post(
-  "/:id/review",
+  "/:id/reviews",
   protect,
   auth("user"),
   expressAsyncHandler(productController.reviewProduct)

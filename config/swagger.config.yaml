@@ -839,7 +839,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InternalServerError'
-    /products/{id}/review:
+    /products/{id}/reviews:
         post:
             summary: Post new review
             description: Post new review
@@ -920,7 +920,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InternalServerError'
-    /cart:
+    /carts:
         get:
             summary: Get all cart items
             description: Get all cart items
@@ -955,7 +955,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InternalServerError'
-    /cart/add:
+    /carts/add:
         post:
             summary: Add to cart
             description: Add to cart
@@ -995,7 +995,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InternalServerError'
-    /cart/update:
+    /carts/update:
         patch:
             summary: Update cart item
             description: Update cart item
@@ -1035,7 +1035,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InternalServerError'
-    /cart/remove:
+    /carts/remove:
         patch:
             summary: Remove selected cart item
             description: Remove selected cart item
@@ -1370,7 +1370,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InternalServerError'
-    /order/{id}/orderItem/{orderItemId}/product/{productId}:
+    /order/{id}/orderItems/{orderItemId}/products/{productId}:
         post:
             summary: Review product by order item id
             description: Review product by order item id
@@ -1655,6 +1655,9 @@ components:
         Category: 
             type: object                                     
             properties:
+                _id: 
+                    type: string
+                    description: Category id
                 name:
                     type: string
                     description: Category name
@@ -1728,6 +1731,11 @@ components:
                           nullable: true
                   example: 
                     _id: "00a0aa00aa0000a000a00a0a"
+        VariantFormWithVariantIdAndTimestamps:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/VariantFormWithVariantId'
+                - $ref: "#/components/schemas/Timestamps"                
         # Variant:
         #     type: object
         #     allOf:
@@ -1754,61 +1762,62 @@ components:
         #                 description: Variant price                  
         PopulatedVariant:
             type: object
-            properties:
-                _id:
-                    type: string
-                    description: Variant object id.
-                product:
-                    type: object
-                    properties:
+            allOf: 
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
                         _id:
                             type: string
-                            description: Product Id
-                        name:
+                            description: Variant object id.
+                        product:
+                            type: object
+                            properties:
+                                _id:
+                                    type: string
+                                    description: Product Id
+                                name:
+                                    type: string
+                                    description: Product name
+                                image:
+                                    type: string
+                                    description: Product image's url
+                                description:
+                                    type: string
+                                    description: Product description
+                                category:
+                                    type: string
+                                    description: Product category id
+                                rating:
+                                    type: number
+                                    description: User ratings (5-stars rating)
+                                numReviews:
+                                    type: number
+                                    description: Number of reviews
+                                price:
+                                    type: number
+                                    description: Product price
+                                variants:
+                                    type: array
+                                    description: Array of product variant Ids
+                                totalSales:
+                                    type: number
+                                    description: Product total sales
+                                reviews:
+                                    $ref: '#/components/schemas/Review'
+                                timestamps:
+                                    $ref: '#/components/schemas/Timestamps'                            
+                        size:
                             type: string
-                            description: Product name
-                        image:
+                            description: Variant size
+                        color:
                             type: string
-                            description: Product image's url
-                        description:
-                            type: string
-                            description: Product description
-                        category:
-                            type: string
-                            description: Product category id
-                        rating:
+                            description: Variant color
+                        quantity:
                             type: number
-                            description: User ratings (5-stars rating)
-                        numReviews:
-                            type: number
-                            description: Number of reviews
+                            description: Variant quantity
                         price:
                             type: number
-                            description: Product price
-                        variants:
-                            type: array
-                            description: Array of product variant Ids
-                        totalSales:
-                            type: number
-                            description: Product total sales
-                        reviews:
-                            $ref: '#/components/schemas/Review'
-                        timestamps:
-                            $ref: '#/components/schemas/Timestamps'
-                size:
-                    type: string
-                    description: Variant size
-                color:
-                    type: string
-                    description: Variant color
-                quantity:
-                    type: number
-                    description: Variant quantity
-                price:
-                    type: number
-                    description: Variant price
-                timestamps:
-                    $ref: '#/components/schemas/Timestamps'
+                            description: Variant price                            
         ProductSearchResponse:
             type: object
             properties:
@@ -1818,23 +1827,29 @@ components:
                 name:
                     type: string
                     description: Product name
+            example: 
+                _id: "00a0aa00aa0000a000a00a0a"
+                name: "Amazon Essentials Women's Tank Swing Dress"
         PaginatedProductsResponse:
             type: object
             properties:
                 page:
                     type: integer
                     description: Current product page number
+                    example: 0
                 pages:
                     type: integer
                     description: Total product pages
+                    example: 1
                 products:
                     type: array
                     description: Total product in 1 page
                     items:
-                    $ref: '#/components/schemas/Product'
+                        $ref: '#/components/schemas/Product'
                 totalProducts:
                     type: integer
                     description: Total products
+                    example: 1
         ProductFormTemplate:
             type: object
             properties:
@@ -1875,28 +1890,34 @@ components:
                               $ref: '#/components/schemas/VariantFormWithVariantId'
         Product:
             type: object
-            allOf:
-                - $ref: '#/components/schemas/ProductSearchResponse'
-                - type: object
-                  properties:
-                      description:
-                          type: string
-                          description: Product description
-                      reviews:
-                          type: array
-                          description: User reviews
-                          items:
-                              $ref: '#/components/schemas/Review'
-                      numReviews:
-                          type: number
-                          description: Number of reviews
-                      variants:
-                          type: array
-                          items:
-                              $ref: '#/components/schemas/VariantForm'
-                      __v:
-                          type: number
-                          description: Document version key
+            properties:
+                _id:
+                    type: string
+                    description: Product Id
+                name:
+                    type: string
+                    description: Product name                  
+                image:
+                    type: string
+                    description: Product image's url                  
+                description:
+                    type: string
+                    description: Product description
+                category: 
+                    $ref: "#/components/schemas/Category"
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                numReviews:
+                    type: number
+                    description: Number of reviews
+                price:
+                    type: number
+                    description: Product price                        
+                variants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/VariantFormWithVariantIdAndTimestamps'                                                     
         ProductsSearchResult:
             type: object
             properties:
@@ -1940,11 +1961,36 @@ components:
                 - $ref: '#/components/schemas/Timestamps'
                 - type: object
                   properties:
+                      _id: 
+                        type: string
+                        description: Cart item id
                       variant:
-                          $ref: '#/components/schemas/PopulatedVariant'
+                          $ref: '#/components/schemas/PopulatedVariant'                        
                       quantity:
                           type: number
                           description: Cart item quantity
+                  example: 
+                    _id: "00a0aa00aa0000a000a00a0a"
+                    quantity: 10      
+                    variant:
+                        _id: "00a0aa00aa0000a000a00a0a"
+                        size: "S"
+                        color: "Blue"
+                        quantity: 5
+                        price: 100
+                        product: 
+                            createdAt: "2022-08-14T10:11:16.681Z"
+                            updatedAt: "2022-08-21T06:47:30.131Z"                           
+                            _id: "00a0aa00aa0000a000a00a0a"
+                            name: "Amazon Essentials Women's Tank Swing Dress"
+                            image: "https://res.cloudinary.com/nocompanyforsure/image/upload/v1663290745/grygzivfdfwlc3hfte73.webp"
+                            description: "52% Cotton, 48% Polyester"
+                            category: "00a0aa00aa0000a000a00a0a"
+                            rating: 5
+                            numReviews: 5
+                            price: 100
+                            variants: ["00a0aa00aa0000a000a00a0a"]
+                            totalSales: 10                             
         PopulatedCart:
             type: object
             allOf:
@@ -1967,13 +2013,18 @@ components:
                 quantity:
                     type: number
                     description: Cart item quantity
+            example:
+                variantId: "00a0aa00aa0000a000a00a0a"
+                quantity: 5
         CartRemoveForm:
             type: object
             properties:
                 variantIds:
                     type: array
                     items:
-                        type: string    
+                        type: string  
+            example:
+                variantIds: ["00a0aa00aa0000a000a00a0a"]  
         ShippingAddress:
             type: object
             properties:
@@ -2070,6 +2121,20 @@ components:
                     description: Total price
                 contactInformation:
                     $ref: '#/components/schemas/ContactInformation'
+            example: 
+                username: "user"
+                shippingAddress: 
+                    address: "District 1"
+                    city: "HCM"
+                    postalCode: "HCMPC"
+                    country: "VN"
+                paymentMethod: "Paypal"
+                taxPrice: 100
+                shippingPrice: 100
+                totalPrice: 100
+                contactInformation: 
+                    phone: "0123456789"
+                    email: "user@gmail.com"
         OrderDetail:
             allOf:
                 - type: object
@@ -2111,6 +2176,9 @@ components:
                                   quantity:
                                       type: string
                                       description: Ordered item variant quantity
+                              example: 
+                                  variant: "00a0aa00aa0000a000a00a0a"
+                                  quantity: 10
                 - $ref: '#/components/schemas/OrderCommonFields'
         PaginatedOrdersResponse:
             type: object

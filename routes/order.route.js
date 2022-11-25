@@ -42,7 +42,7 @@ orderRouter.patch(
   asyncHandler(orderController.cancelOrder)
 );
 orderRouter.post(
-  "/:id/orderItem/:orderItemId/product/:productId",
+  "/:id/orderItems/:orderItemId/products/:productId",
   protect,
   auth("user"),
   asyncHandler(orderController.reviewProductByOrderItemId)
