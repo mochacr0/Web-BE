@@ -5,7 +5,7 @@ import orderRouter from "./order.route.js";
 import cartRouter from "./cart.route.js";
 import userRouter from "./user.route.js";
 import testRouter from "./test.route.js";
-
+import sliderRouter from "./slider.route.js";
 
 const routes = (app) => {
   app.use("/api/auth", authRouter);
@@ -15,6 +15,7 @@ const routes = (app) => {
   app.use("/api/orders", orderRouter);
   app.use("/api/users", userRouter);
   app.use("/api/test", testRouter);
+  app.use("/api/sliders", sliderRouter);
 };
 
 export default routes;
