@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const variantSchema = mongoose.Schema(
   {
@@ -21,7 +21,7 @@ const variantSchema = mongoose.Schema(
     product: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Product",
+      ref: 'Product',
     },
   },
   {
@@ -29,5 +29,5 @@ const variantSchema = mongoose.Schema(
   }
 );
 
-const Variant = mongoose.model("Variant", variantSchema);
+const Variant = mongoose.model('Variant', variantSchema);
 export default Variant;

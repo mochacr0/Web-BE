@@ -1,32 +1,32 @@
-import express from "express";
-import expressAsyncHandler from "express-async-handler";
-import { protect, auth } from "../middlewares/auth.middleware.js";
-import cartController from "../controllers/cart.controller.js";
+import express from 'express';
+import expressAsyncHandler from 'express-async-handler';
+import { protect, auth } from '../middlewares/auth.middleware.js';
+import cartController from '../controllers/cart.controller.js';
 
 const cartRouter = express.Router();
 
 cartRouter.post(
-  "/add",
+  '/add',
   protect,
-  auth("user"),
+  auth('user'),
   expressAsyncHandler(cartController.addToCart)
 );
 cartRouter.patch(
-  "/update",
+  '/update',
   protect,
-  auth("user"),
+  auth('user'),
   expressAsyncHandler(cartController.updateCartItem)
 );
 cartRouter.patch(
-  "/remove",
+  '/remove',
   protect,
-  auth("user"),
+  auth('user'),
   expressAsyncHandler(cartController.removeCartItems)
 );
 cartRouter.get(
-  "/",
+  '/',
   protect,
-  auth("user"),
+  auth('user'),
   expressAsyncHandler(cartController.getCartByUserId)
 );
 

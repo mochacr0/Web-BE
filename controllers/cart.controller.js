@@ -1,15 +1,15 @@
-import Cart from "../models/cart.model.js";
-import Product from "../models/product.model.js";
-import Variant from "../models/variant.model.js";
+import Cart from '../models/cart.model.js';
+import Product from '../models/product.model.js';
+import Variant from '../models/variant.model.js';
 
 const getCartByUserId = async (req, res) => {
   const cart = await Cart.findOne({ user: req.user._id }).populate({
-    path: "cartItems.variant",
-    populate: { path: "product" },
+    path: 'cartItems.variant',
+    populate: { path: 'product' },
   });
   if (!cart) {
     res.status(404);
-    throw new Error("Cart not found");
+    throw new Error('Cart not found');
   }
   res.status(200);
   res.json(cart.cartItems);
@@ -112,15 +112,15 @@ const addToCart = async (req, res) => {
   const [cart, variant] = await Promise.all([findCart, findVariant]);
   if (!cart) {
     res.status(404);
-    throw new Error("Cart not found");
+    throw new Error('Cart not found');
   }
   if (!variant) {
     res.status(400);
-    throw new Error("Product variantation not found");
+    throw new Error('Product variantation not found');
   }
   if (quantity <= 0) {
     res.status(400);
-    throw new Error("Quantity must be greater than 0");
+    throw new Error('Quantity must be greater than 0');
   }
   let isQuantityValid = true;
   let currentQuantity = 0;
@@ -139,7 +139,7 @@ const addToCart = async (req, res) => {
   if (!isQuantityValid) {
     res.status(400);
     throw new Error(
-      "You have exceeded the maximum quantity available for this item"
+      'You have exceeded the maximum quantity available for this item'
     );
   }
   if (addedItemIndex !== -1) {
@@ -165,7 +165,7 @@ const addToCart = async (req, res) => {
   // }
   await cart.save();
   res.status(200);
-  res.json({ message: "Cart item is added" });
+  res.json({ message: 'Cart item is added' });
 };
 
 const updateCartItem = async (req, res) => {
@@ -175,16 +175,16 @@ const updateCartItem = async (req, res) => {
   const [cart, variant] = await Promise.all([findCart, findVariant]);
   if (!cart) {
     res.status(404);
-    throw new Error("Cart not found");
+    throw new Error('Cart not found');
   }
   if (!variant) {
     res.status(400);
-    throw new Error("Product variantation not found");
+    throw new Error('Product variantation not found');
   }
   if (quantity > variant.quantity) {
     res.status(400);
     throw new Error(
-      "You have exceeded the maximum quantity available for this item"
+      'You have exceeded the maximum quantity available for this item'
     );
   }
   const addedItemIndex = cart.cartItems.findIndex(
@@ -192,17 +192,17 @@ const updateCartItem = async (req, res) => {
   );
   if (addedItemIndex == -1) {
     res.status(400);
-    throw new Error("Cart item is not in cart");
+    throw new Error('Cart item is not in cart');
   }
   cart.cartItems[addedItemIndex].quantity = quantity;
-  let message = "";
+  let message = '';
   if (cart.cartItems[addedItemIndex].quantity <= 0) {
     cart.cartItems.splice(addedItemIndex, 1);
-    message = "Cart item is removed";
+    message = 'Cart item is removed';
   } else {
     await cart.save();
     res.status(200);
-    message = "Cart item is updated";
+    message = 'Cart item is updated';
   }
   await cart.save();
   res.status(200);
@@ -213,7 +213,7 @@ const removeCartItems = async (req, res) => {
   const cart = await Cart.findOne({ user: req.user._id });
   if (!cart) {
     res.status(404);
-    throw new Error("Cart not found");
+    throw new Error('Cart not found');
   }
   //productIds: [productId1, productId2, ...]
   const variantIds = req.body.variantIds;
@@ -222,7 +222,7 @@ const removeCartItems = async (req, res) => {
     { $pull: { cartItems: { variant: { $in: variantIds } } } }
   );
   res.status(200);
-  res.json({ message: "Cart items are removed" });
+  res.json({ message: 'Cart items are removed' });
 };
 
 const cartController = {

@@ -11,21 +11,26 @@ sliderRouter.get('/', expressAsyncHandler(sliderController.getSliders));
 sliderRouter.get('/:id', expressAsyncHandler(sliderController.getSliderById));
 
 sliderRouter.post(
-    '/',
-    protect,
-    auth('admin'),
-    multerUpload.array('slider', 5),
-    expressAsyncHandler(sliderController.createSliders),
+  '/',
+  protect,
+  auth('admin'),
+  multerUpload.array('slider', 5),
+  expressAsyncHandler(sliderController.createSliders)
 );
 
-sliderRouter.delete('/:id', protect, auth('admin'), expressAsyncHandler(sliderController.deleteSlider));
+sliderRouter.delete(
+  '/:id',
+  protect,
+  auth('admin'),
+  expressAsyncHandler(sliderController.deleteSlider)
+);
 
 sliderRouter.put(
-    '/:id',
-    protect,
-    auth('admin'),
-    multerUpload.single('slider'),
-    expressAsyncHandler(sliderController.updateSlider),
+  '/:id',
+  protect,
+  auth('admin'),
+  multerUpload.single('slider'),
+  expressAsyncHandler(sliderController.updateSlider)
 );
 
 export default sliderRouter;
