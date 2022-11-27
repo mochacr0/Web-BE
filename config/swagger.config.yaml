@@ -22,6 +22,8 @@ tags:
       description: Everything about Carts
     - name: Order
       description: Everything about Orders      
+    - name: Order
+      description: Everything about Sliders         
 paths:
     /auth/login:
         post:
@@ -1405,6 +1407,46 @@ paths:
                         schema:
                             $ref: '#/components/schemas/ReviewForm'
             responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /sliders:
+        post:
+            summary: Create new slider 
+            description: Create new slider 
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SliderForm'
+            responses:
                 '201':
                     description: Success
                     content:
@@ -1428,7 +1470,166 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/InternalServerError'                                                             
+                                $ref: '#/components/schemas/InternalServerError'
+        get:
+            summary: Get all sliders
+            description: Get all sliders
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items: 
+                                    $ref: "#/components/schemas/Slider"
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                
+    /sliders/{id}:
+        get:
+            summary: Get slider by id
+            description: Get slider by id
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Slider id                
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items: 
+                                    $ref: "#/components/schemas/Slider"
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'  
+        put:
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            summary: Admin update slider
+            description: Admin update slider
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Slider id                 
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SliderForm"
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Slider'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'   
+        delete:
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            summary: Admin delete slider
+            description: Admin delete slider
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Slider id                 
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Slider'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                                                  
 components:
     schemas:
         BadRequestError:
@@ -2238,6 +2439,17 @@ components:
                 description:
                     type: string
                     description: Description of the new status 
+        SliderForm:
+            type: object
+            properties:
+                url: 
+                    type: string
+                    description: Slide url
+        Slider:
+            type: object
+            allOf:
+             - $ref: "#/components/schemas/SliderForm"
+             - $ref: "#/components/schemas/Timestamps"
     examples:
         BadRequestError: 
             value:
