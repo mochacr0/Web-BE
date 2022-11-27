@@ -1,10 +1,10 @@
-import schedule, { scheduleJob } from "node-schedule";
-import crypto from "crypto";
-import User from "../models/user.model.js";
-import { sendMail } from "../utils/nodemailer.js";
-import generateAuthToken from "../utils/generateToken.js";
-import { htmlMailVerify, htmlResetEmail } from "../common/mailLayout.js";
-import image from "../common/images.js";
+import schedule, { scheduleJob } from 'node-schedule';
+import crypto from 'crypto';
+import User from '../models/user.model.js';
+import { sendMail } from '../utils/nodemailer.js';
+import generateAuthToken from '../utils/generateToken.js';
+import { htmlMailVerify, htmlResetEmail } from '../common/mailLayout.js';
+import image from '../common/images.js';
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -28,7 +28,7 @@ const login = async (req, res) => {
     });
   } else {
     res.status(401);
-    throw new Error("Invalid Email or Password");
+    throw new Error('Invalid Email or Password');
   }
 };
 
@@ -38,7 +38,7 @@ const register = async (req, res, next) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
-    throw new Error("User already exists");
+    throw new Error('User already exists');
   }
   const user = await User.create({
     name,
@@ -54,7 +54,7 @@ const register = async (req, res, next) => {
   let scheduledJob = schedule.scheduleJob(
     `*/${process.env.EMAIL_VERIFY_EXPIED_TIME_IN_MINUTE} * * * *`,
     async () => {
-      console.log("Job run");
+      console.log('Job run');
       const foundUser = await User.findOneAndDelete({
         _id: user._id,
         isVerified: false,
@@ -66,14 +66,14 @@ const register = async (req, res, next) => {
   //set up message options
   const messageOptions = {
     recipient: user.email,
-    subject: "Verify Email",
+    subject: 'Verify Email',
     html: html,
   };
   //send verify email
   try {
     await sendMail(messageOptions);
     res.status(200);
-    res.json({ message: "Sending verification mail successfully" });
+    res.json({ message: 'Sending verification mail successfully' });
   } catch (error) {
     next(error);
   }
@@ -82,16 +82,16 @@ const register = async (req, res, next) => {
 const verifyEmail = async (req, res) => {
   const emailVerificationToken = req.query.emailVerificationToken || null;
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(emailVerificationToken)
-    .digest("hex");
+    .digest('hex');
   const user = await User.findOne({
     emailVerificationToken: hashedToken,
     isVerified: false,
   });
   if (!user) {
     res.status(400);
-    throw new Error({ message: "Email verification token is not valid" });
+    throw new Error({ message: 'Email verification token is not valid' });
   }
   user.isVerified = true;
   user.emailVerificationToken = null;
@@ -107,19 +107,19 @@ const verifyEmail = async (req, res) => {
 const cancelVerifyEmail = async (req, res) => {
   const emailVerificationToken = req.query.emailVerificationToken || null;
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(emailVerificationToken)
-    .digest("hex");
+    .digest('hex');
   const user = await User.findOneAndDelete({
     emailVerificationToken: hashedToken,
     isVerified: false,
   });
   if (!user) {
     res.status(400);
-    throw new Error("Email verification token is not valid");
+    throw new Error('Email verification token is not valid');
   }
   res.status(200);
-  res.json({ message: "Canceling email verification succeed" });
+  res.json({ message: 'Canceling email verification succeed' });
 };
 
 const forgotPassword = async (req, res) => {
@@ -127,7 +127,7 @@ const forgotPassword = async (req, res) => {
   const user = await User.findOne({ email: email, isVerified: true });
   if (!user) {
     res.status(400);
-    throw new Error("Email not found");
+    throw new Error('Email not found');
   }
   //reset password
   const resetPasswordToken = user.getResetPasswordToken();
@@ -138,14 +138,14 @@ const forgotPassword = async (req, res) => {
   //set up message options
   const messageOptions = {
     recipient: user.email,
-    subject: "Reset Password",
+    subject: 'Reset Password',
     html: html,
   };
   //send verify email
   try {
     await sendMail(messageOptions);
     res.status(200);
-    res.json({ messsage: "Sending reset password mail successfully" });
+    res.json({ messsage: 'Sending reset password mail successfully' });
   } catch (error) {
     next(error);
   }
@@ -157,21 +157,24 @@ const resetPassword = async (req, res) => {
   const { newPassword, confirmPassword } = req.body;
   if (!newPassword) {
     res.status(400);
-    throw new Error("Your new password is not valid");
+    throw new Error('Your new password is not valid');
   }
   if (newPassword.localeCompare(confirmPassword) != 0) {
     res.status(400);
-    throw new Error("The password and confirmation password do not match");
+    throw new Error('The password and confirmation password do not match');
   }
-  const isEmailExisted = await User.findOne({ email: email, isVerified: true });
+  const isEmailExisted = await User.findOne({
+    email: email,
+    isVerified: true,
+  });
   if (!isEmailExisted) {
     res.status(400);
-    throw new Error("Email not found");
+    throw new Error('Email not found');
   }
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(resetPasswordToken)
-    .digest("hex");
+    .digest('hex');
   const user = await User.findOne({
     _id: isEmailExisted._id,
     resetPasswordToken: hashedToken,
@@ -182,22 +185,22 @@ const resetPassword = async (req, res) => {
   });
   if (!user) {
     res.status(400);
-    throw new Error("Reset password token is not valid");
+    throw new Error('Reset password token is not valid');
   }
   user.password = newPassword;
   user.resetPasswordToken = null;
   user.resetPasswordTokenExpiryTime = null;
   await user.save();
   res.status(200);
-  res.json({ message: "Your password has been reset" });
+  res.json({ message: 'Your password has been reset' });
 };
 
 const cancelResetPassword = async (req, res) => {
   const resetPasswordToken = req.query.resetPasswordToken || null;
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(resetPasswordToken)
-    .digest("hex");
+    .digest('hex');
   const user = await User.findOneAndUpdate(
     {
       resetPasswordToken: hashedToken,
@@ -213,10 +216,10 @@ const cancelResetPassword = async (req, res) => {
   );
   if (!user) {
     res.status(400);
-    throw new Error("Reset password token is not found");
+    throw new Error('Reset password token is not found');
   }
   res.status(200);
-  res.json({ message: "Canceling reset password succeed" });
+  res.json({ message: 'Canceling reset password succeed' });
 };
 
 const authController = {

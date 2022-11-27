@@ -1,5 +1,5 @@
-import Category from "../models/category.model.js";
-import { checkParams } from "../utils/validate.js";
+import Category from '../models/category.model.js';
+import { checkParams } from '../utils/validate.js';
 
 const getAllCategories = async (req, res) => {
   const exsitingCategories = await Category.find();
@@ -66,7 +66,7 @@ const removeCategory = async (req, res) => {
     res.status(404);
     throw new Error(`Category with id [${categoryId}] is not found`);
   }
-  res.json({ message: "Category was delete successfully" });
+  res.json({ message: 'Category was delete successfully' });
 };
 
 const updateCategory = async (req, res) => {

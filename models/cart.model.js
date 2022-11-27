@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const cartItem = mongoose.Schema(
   {
     variant: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Variant",
+      ref: 'Variant',
     },
     // name: { type: String, required: true },
     // image: { type: String, required: true },
@@ -21,7 +21,7 @@ const cartSchema = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: 'User',
     },
     cartItems: [cartItem],
   },
@@ -30,5 +30,5 @@ const cartSchema = mongoose.Schema(
   }
 );
 
-const Cart = mongoose.model("Cart", cartSchema);
+const Cart = mongoose.model('Cart', cartSchema);
 export default Cart;

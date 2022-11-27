@@ -1,16 +1,16 @@
-import * as fs from "fs";
-import Product from "../models/product.model.js";
-import Category from "../models/category.model.js";
-import Order from "../models/order.model.js";
-import Cart from "../models/cart.model.js";
-import Variant from "../models/variant.model.js";
-import { cloudinaryUpload, cloudinaryRemove } from "../utils/cloudinary.js";
+import * as fs from 'fs';
+import Product from '../models/product.model.js';
+import Category from '../models/category.model.js';
+import Order from '../models/order.model.js';
+import Cart from '../models/cart.model.js';
+import Variant from '../models/variant.model.js';
+import { cloudinaryUpload, cloudinaryRemove } from '../utils/cloudinary.js';
 import {
   productQueryParams,
   validateConstants,
   priceRangeFilter,
   ratingFilter,
-} from "../utils/searchConstants.js";
+} from '../utils/searchConstants.js';
 
 const getAllProducts = async (req, res) => {
   const products = await Product.find({}).sort({ _id: -1 });
@@ -46,10 +46,10 @@ const getAllProducts = async (req, res) => {
 // };
 
 const getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id).populate("variants");
+  const product = await Product.findById(req.params.id).populate('variants');
   if (!product) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error('Product not found');
   }
   res.status(200);
   res.json(product);
@@ -61,17 +61,17 @@ const reviewProduct = async (req, res) => {
   const product = await Product.findOne({ _id: productId });
   if (!product) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error('Product not found');
   }
   const order = await Order.findOne({
     user: req.user._id,
-    "orderItems.product": product._id,
-    "orderItems.isAbleToReview": true,
-    "orderItems.statusHistory.status": "Paid",
+    'orderItems.product': product._id,
+    'orderItems.isAbleToReview': true,
+    'orderItems.statusHistory.status': 'Paid',
   });
   if (!order) {
     res.status(400);
-    throw new Error("You need to buy this product first");
+    throw new Error('You need to buy this product first');
   }
   const review = {
     name: req.user.name,
@@ -95,7 +95,7 @@ const reviewProduct = async (req, res) => {
     await product.save();
   }
   res.status(201);
-  res.json({ message: "Added review" });
+  res.json({ message: 'Added review' });
 };
 
 const deleteProduct = async (req, res) => {
@@ -103,11 +103,14 @@ const deleteProduct = async (req, res) => {
   // const cart = await Cart.find({ 'cartItems.product': req.params.id });
   if (!deletedProduct) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error('Product not found');
     // res.json(newCart);
   }
   //extract product image name
-  const cloudinaryImage = deletedProduct.image.match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0].split(".").shift();
+  const cloudinaryImage = deletedProduct.image
+    .match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0]
+    .split('.')
+    .shift();
   const removeCartItem = Cart.updateMany(
     {},
     { $pull: { cartItems: { deletedProduct: req.params.id } } }
@@ -115,7 +118,7 @@ const deleteProduct = async (req, res) => {
   const removeImage = cloudinaryRemove(cloudinaryImage);
   const removeVariants = Variant.deleteMany({ product: deleteProduct._id });
   await Promise.all([removeCartItem, removeImage, removeVariants]);
-  res.json({ message: "Product deleted" });
+  res.json({ message: 'Product deleted' });
 };
 
 const updateProduct = async (req, res, next) => {
@@ -130,16 +133,16 @@ const updateProduct = async (req, res, next) => {
   ) {
     res.status(400);
     throw new Error(
-      "Price or Count in stock is not valid, please correct it and try again"
+      'Price or Count in stock is not valid, please correct it and try again'
     );
   }
   if (!product) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error('Product not found');
   }
   if (variants.length == 0) {
     res.status(400);
-    throw new Error("At least 1 variant remains");
+    throw new Error('At least 1 variant remains');
   }
   //update product
   product.name = name || product.name;
@@ -153,10 +156,13 @@ const updateProduct = async (req, res, next) => {
     const image = await cloudinaryUpload(req.file.path);
     if (!image) {
       res.status(404);
-      throw new Error("Error while uploading image");
+      throw new Error('Error while uploading image');
     }
     product.image = image.secure_url.toString();
-    const cloudinaryImage = product.image.match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0].split(".").shift();
+    const cloudinaryImage = product.image
+      .match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0]
+      .split('.')
+      .shift();
     const removeOldImageCloudinary = cloudinaryRemove(cloudinaryImage);
     const removeNewImageLocal = fs.promises.unlink(req.file.path);
     await Promise.all([removeOldImageCloudinary, removeNewImageLocal]);
@@ -212,7 +218,7 @@ const createProduct = async (req, res) => {
   const name = req.body.name || null;
   let { description, category, image } = req.body;
   let variants = JSON.parse(req.body.variants);
-  let imageUrl = "";
+  let imageUrl = '';
   const findProduct = Product.findOne({ name });
   const findCategory = Category.findById(category);
   const [existedProduct, existedCategory] = await Promise.all([
@@ -225,21 +231,21 @@ const createProduct = async (req, res) => {
     } */
   if (existedProduct) {
     res.status(400);
-    throw new Error("Product name already exist");
+    throw new Error('Product name already exist');
   }
   if (!existedCategory) {
     res.status(400);
-    throw new Error("Category is not found");
+    throw new Error('Category is not found');
   }
   if (!variants || variants.length == 0) {
     res.status(400);
-    throw new Error("Product must have at least one variant");
+    throw new Error('Product must have at least one variant');
   }
   if ((!image || image.length == 0) && req.file) {
     image = await cloudinaryUpload(req.file.path);
     if (!image) {
       res.status(500);
-      throw new Error("Error while uploading image");
+      throw new Error('Error while uploading image');
     }
     imageUrl = image.secure_url;
     fs.unlink(req.file.path, (error) => {
@@ -257,7 +263,7 @@ const createProduct = async (req, res) => {
   });
   if (!product) {
     res.status(500);
-    throw new Error("Error while creating new proudct");
+    throw new Error('Error while creating new proudct');
   }
   let totalVariantPrice = 0;
   const productVariants = variants.map(
@@ -270,13 +276,13 @@ const createProduct = async (req, res) => {
   });
   if (variantIds.length == 0) {
     res.status(400);
-    throw new Error("Invalid product data");
+    throw new Error('Invalid product data');
   }
   product.variants = variantIds;
   product.price = totalVariantPrice / product.variants.length;
   await product.save();
   res.status(201);
-  res.json({ message: "Product is added" });
+  res.json({ message: 'Product is added' });
 };
 
 const getProductsAndPaginate = async (req, res) => {
@@ -284,17 +290,17 @@ const getProductsAndPaginate = async (req, res) => {
   const page = Number(req.query.pageNumber) || 1;
   const dateOrderSortBy = validateConstants(
     productQueryParams,
-    "date",
+    'date',
     req.query.dateOrder
   );
   const priceOrderSortBy = validateConstants(
     productQueryParams,
-    "price",
+    'price',
     req.query.priceOrder
   );
   const bestSellerSortBy = validateConstants(
     productQueryParams,
-    "totalSales",
+    'totalSales',
     req.query.bestSeller
   );
   const productSortBy = {
@@ -306,7 +312,7 @@ const getProductsAndPaginate = async (req, res) => {
     ? {
         name: {
           $regex: req.query.keyword,
-          $options: "i",
+          $options: 'i',
         },
       }
     : {}; // TODO: return cannot find product
@@ -330,8 +336,8 @@ const getProductsAndPaginate = async (req, res) => {
     .limit(pageSize)
     .skip(pageSize * (page - 1))
     .sort(productSortBy)
-    .populate("category")
-    .populate("variants");
+    .populate('category')
+    .populate('variants');
   res.json({
     products,
     page,
@@ -346,7 +352,7 @@ const getProductSearchResults = async (req, res) => {
     ? {
         name: {
           $regex: req.query.keyword,
-          $options: "i",
+          $options: 'i',
         },
       }
     : {};
@@ -355,7 +361,7 @@ const getProductSearchResults = async (req, res) => {
   };
   const products = await Product.find(productFilter)
     .limit(pageSize)
-    .select("name");
+    .select('name');
   res.status(200);
   res.json(products);
 };

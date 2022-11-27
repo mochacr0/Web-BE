@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const orderStatus = mongoose.Schema(
   {
@@ -9,7 +9,7 @@ const orderStatus = mongoose.Schema(
     description: {
       type: String,
       required: false,
-      default: "",
+      default: '',
     },
   },
   {
@@ -22,7 +22,7 @@ const orderSchema = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: 'User',
     },
     username: {
       type: String,
@@ -33,12 +33,12 @@ const orderSchema = mongoose.Schema(
         variant: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
-          ref: "Variant",
+          ref: 'Variant',
         },
         product: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
-          ref: "Product",
+          ref: 'Product',
         },
         name: {
           type: String,
@@ -92,7 +92,7 @@ const orderSchema = mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
-      default: "Payment in cash",
+      default: 'Payment in cash',
     },
     taxPrice: {
       type: Number,
@@ -130,6 +130,6 @@ const orderSchema = mongoose.Schema(
   }
 );
 
-const Order = mongoose.model("Order", orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 
 export default Order;
