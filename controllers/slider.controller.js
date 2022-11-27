@@ -27,7 +27,6 @@ const createSliders = async (req, res) => {
     const uploadImages = req.files.map(async (file) => {
         const image = await cloudinaryUpload(file.path);
         if (!image) {
-            res.status(500);
             throw new Error('Some sliders was not uploaded due to unknown error');
         }
         fs.unlink(file.path, (error) => {

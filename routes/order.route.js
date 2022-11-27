@@ -1,5 +1,5 @@
 import express from "express";
-import asyncHandler from "express-async-handler";
+import expressAsyncHandler from "express-async-handler";
 import { auth, protect } from "../middlewares/auth.middleware.js";
 import orderController from "../controllers/order.controller.js";
 
@@ -9,43 +9,43 @@ orderRouter.post(
   "/",
   protect,
   auth("user"),
-  asyncHandler(orderController.placeOrder)
+  expressAsyncHandler(orderController.placeOrder)
 );
 orderRouter.get(
   "/all",
   protect,
   auth("admin"),
-  asyncHandler(orderController.getOrdersAndPaginate)
+  expressAsyncHandler(orderController.getOrdersAndPaginate)
 );
 orderRouter.get(
   "/:id",
   protect,
   auth("user", "admin"),
-  asyncHandler(orderController.getOrderById)
+  expressAsyncHandler(orderController.getOrderById)
 );
 orderRouter.get(
   "/",
   protect,
   auth("user"),
-  asyncHandler(orderController.getOrdersByUserId)
+  expressAsyncHandler(orderController.getOrdersByUserId)
 );
 orderRouter.patch(
   "/:id",
   protect,
   auth("user", "admin"),
-  asyncHandler(orderController.updateOrderStatus)
+  expressAsyncHandler(orderController.updateOrderStatus)
 );
 orderRouter.patch(
   "/:id/cancel",
   protect,
   auth("user", "admin"),
-  asyncHandler(orderController.cancelOrder)
+  expressAsyncHandler(orderController.cancelOrder)
 );
 orderRouter.post(
   "/:id/orderItems/:orderItemId/products/:productId",
   protect,
   auth("user"),
-  asyncHandler(orderController.reviewProductByOrderItemId)
+  expressAsyncHandler(orderController.reviewProductByOrderItemId)
 );
 
 export default orderRouter;

@@ -2,7 +2,7 @@ import express from "express";
 import expressAsyncHandler from "express-async-handler";
 import authController from "../controllers/auth.controller.js";
 import passport from "passport";
-import dotenv from "dotenv";
+
 import {
   passportGoogleConfig,
   passportFacebookConfig,
