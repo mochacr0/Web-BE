@@ -1,10 +1,8 @@
-import { Strategy as GoogleStrategy } from "passport-google-oauth2";
-import { Strategy as FacebookStrategy } from "passport-facebook";
-import User from "../models/user.model.js";
-import dotenv from "dotenv";
-import generateAuthToken from "../utils/generateToken.js";
-
-dotenv.config();
+import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
+import User from '../models/user.model.js';
+import dotenv from 'dotenv';
+import generateAuthToken from '../utils/generateToken.js';
 
 const googleVerify = async (
   request,
@@ -71,7 +69,7 @@ const passportGoogleConfig = (passport) => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:5000/api/auth/google/callback",
+        callbackURL: 'http://localhost:5000/api/auth/google/callback',
         passReqToCallback: true,
       },
       googleVerify
@@ -85,7 +83,7 @@ const passportFacebookConfig = (passport) => {
       {
         clientID: process.env.FACEBOOK_APPLICATION_ID,
         clientSecret: process.env.FACEBOOK_APPLICATION_SECRET,
-        callbackURL: "http://localhost:5000/api/auth/facebook/callback",
+        callbackURL: 'http://localhost:5000/api/auth/facebook/callback',
         passReqToCallback: true,
       },
       facebookVerify
