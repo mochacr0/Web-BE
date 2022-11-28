@@ -14,6 +14,18 @@ servers:
 tags:
     - name: Auth
       description: Everything about Authorization/Authentication
+    - name: User
+      description: Everything about Users
+    - name: Product
+      description: Everything about Products
+    - name: Cart
+      description: Everything about Carts
+    - name: Order
+      description: Everything about Orders      
+    - name: Slider
+      description: Everything about Sliders         
+    - name: Category
+      description: Everything about Categories         
 paths:
     /auth/login:
         post:
@@ -33,28 +45,28 @@ paths:
                                 password:
                                     type: string
                                     nullable: false
+                            example:
+                                email: "user@gmail.com"
+                                password: "123456789"
             responses:
                 '200':
                     description: Success
                     content:
                         application/json:
-                            schema:
-                                type: object
-                                properties:
-                                  accessToken:
-                                    type: string
+                            schema: 
+                                $ref: "#/components/schemas/UserResponse"
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/register:
         post:
             tags:
@@ -65,20 +77,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            type: object
-                            properties:
-                                name:
-                                    type: string
-                                    nullable: false
-                                email:
-                                    type: string
-                                    nullable: false
-                                password:
-                                    type: string
-                                    nullable: false
-                                phone:
-                                    type: string
-                                    nullable: false
+                            $ref: "#/components/schemas/UserRegisterForm"
             responses:
                 '200':
                     description: Success
@@ -91,13 +90,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/verify-email:
         patch:
             tags:
@@ -125,13 +124,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/cancel-verify-email:
         patch:
             tags:
@@ -156,13 +155,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/forgot-password:
         patch:
             tags:
@@ -178,6 +177,8 @@ paths:
                                     type: string
                                     description: Email need to be reset
                                     nullable: false
+                            example:
+                                email: "user@gmail.com"
             responses:
                 '200':
                     description: Success
@@ -190,13 +191,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/reset-password:
         patch:
             tags:
@@ -224,6 +225,10 @@ paths:
                                 confirmPassword:
                                     type: string
                                     nullable: false
+                            example: 
+                                email: "user@gmail.com"
+                                newPassword: "123456789"
+                                confirmPassword: "123456789"                                                      
             responses:
                 '200':
                     description: Success
@@ -236,13 +241,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/cancel-reset-password:
         patch:
             tags:
@@ -267,13 +272,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
     /auth/change-password:
         patch:
             tags:
@@ -293,6 +298,9 @@ paths:
                                 newPassword:
                                     type: string
                                     nullable: false
+                            example:    
+                                currentPassword: "123456789"
+                                newPassword: "12345678910"
             responses:
                 '200':
                     description: Success
@@ -309,30 +317,1578 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/BadRequestError'
                 '401':
                     description: Unauthorized
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/UnauthorizedError'
                 '500':
                     description: Internal Server Error
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Error'
+                                $ref: '#/components/schemas/InternalServerError'
+    /users/change-password:
+        patch:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: Change password
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                currentPassword:
+                                    type: string
+                                    nullable: false
+                                newPassword:
+                                    type: string
+                                    nullable: false
+                            example: 
+                                currentPassword: "123456789"
+                                newPassword: "12345678910"
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    accessToken:
+                                        type: string
+                                        nullable: false
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /users/profile:
+        get:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: User get profile
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        put:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: User update profile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserUpdateProfileForm"
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserResponse'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /users:
+        get:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: Admin get all user profiles
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/User'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'               
+    /users/{id}:
+        delete:
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            summary: Admin delete user by id
+            parameters:
+                - name: id
+                  in: path
+                  description: User Id
+                  required: true
+                  schema:
+                      type: string            
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'                                
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                                                  
+    /categories:
+        post:
+            tags:
+                - Category
+            summary: Create new category
+            requestBody:
+                description: Payload to create a new product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CategoryForm'            
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError' 
+        get:
+            description: Get all categories
+            summary: Get all categories
+            tags:
+                - Category
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items: 
+                                    $ref: '#/components/schemas/Category'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError' 
+    /cagories/{id}: 
+        get:
+            summary: Get category by id
+            description: Get category by id
+            tags:
+                - Category
+            parameters:
+                - name: id
+                  in: path
+                  description: Category id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Category'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        put:
+            summary: Update existing category
+            description: Update existing category
+            tags:
+                - Category
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Category id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Payload to update category
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CategoryForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        delete:
+            summary: Delete existing category
+            description: Delete existing category
+            tags:
+                - Category
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Category id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                                                    
+    /products:
+        post:
+            description: Create new product
+            summary: Create new product
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to create a new product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProductCreateForm'
+            responses:
+                '201':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        get:
+            description: Get a part of products to show on shop client
+            summary: Get a part of products to show on shop client
+            tags:
+                - Product
+            parameters:
+                - in: query
+                  name: pageSize
+                  required: false
+                  schema:
+                      type: integer
+                      description: Number of products in 1 page
+                - in: query
+                  name: pageNumber
+                  required: false
+                  schema:
+                      type: integer
+                      description: Page number
+                - in: query
+                  name: keyword
+                  required: false
+                  schema:
+                      type: string
+                      description: Keyword of product name to find in database
+                - in: query
+                  name: dateOrder
+                  required: false
+                  schema:
+                      type: string
+                      description: Sort products by date
+                      enum:
+                          - newest
+                          - latest
+                - in: query
+                  name: priceOrder
+                  required: false
+                  schema:
+                      type: string
+                      description: Sort products by price
+                      enum:
+                          - asc
+                          - desc
+                - in: query
+                  name: category
+                  required: false
+                  schema:
+                      type: string
+                      description: Product category name
+                - in: query
+                  name: minPrice
+                  required: false
+                  schema:
+                      type: number
+                      description: Product min price filter value
+                - in: query
+                  name: maxPrice
+                  required: false
+                  schema:
+                      type: number
+                      description: Product max price filter value
+                - in: query
+                  name: rating
+                  required: false
+                  schema:
+                      type: integer
+                      description: Product rating filter value
+                # - in: query
+                #   name: status
+                #   required: false
+                #   schema:
+                #       type: string
+                #   description: Sort products by status (disabled/notDisabled/all)
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedProductsResponse'
+                '204':
+                    description: No products found for this keyword
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /products/{id}:
+        get:
+            summary: Get product details with given id
+            description: Get product details with given id
+            tags:
+                - Product
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        put:
+            summary: Update existing product
+            description: Update existing product
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProductUpdateForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        delete:
+            summary: Delete existing product
+            description: Delete existing product
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /products/{id}/reviews:
+        post:
+            summary: Post new review
+            description: Post new review
+            tags:
+                - Product
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Product Id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReviewForm'
+            responses:
+                '201':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '403':
+                    description: Forbidden
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ForbiddenError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /products/search:
+        get:
+            summary: Get product search results
+            description: Get product search results
+            tags:
+                - Product
+            parameters:
+                - in: query
+                  name: keyword
+                  required: false
+                  schema:
+                      type: string
+                      description: Keyword of product name to find in database
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/ProductsSearchResult"
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /carts:
+        get:
+            summary: Get all cart items
+            description: Get all cart items
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/PopulatedCartItem'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /carts/add:
+        post:
+            summary: Add to cart
+            description: Add to cart
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to add new cart item
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CartUpdateForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /carts/update:
+        patch:
+            summary: Update cart item
+            description: Update cart item
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to update cart item
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CartUpdateForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /carts/remove:
+        patch:
+            summary: Remove selected cart item
+            description: Remove selected cart item
+            tags:
+                - Cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Cart items need to be removed
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CartRemoveForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'               
+    /order:
+        post:
+            summary: Place new order
+            description: Place new order
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to place new order
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlaceOrderForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BadRequestError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        get:
+            summary: User get orders
+            description: User get orders
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: pageSize
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Number of orders in 1 page
+                - name: pageNumber
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Page number
+                - name: dateOrder
+                  in: query
+                  required: false
+                  description: Sort orders by date
+                  schema:
+                      type: string
+                      enum:
+                          - newest
+                          - latest
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrdersResponse'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /order/all:
+        get:
+            summary: Admin get all orders
+            description: Admin get all orders
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: pageSize
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Number of orders in 1 page
+                - name: pageNumber
+                  in: query
+                  required: false
+                  schema:
+                      type: number
+                  description: Page number
+                - name: dateOrder
+                  in: query
+                  required: false
+                  description: Sort orders by date
+                  schema:
+                      type: string
+                      enum:
+                          - newest
+                          - latest
+                - name: orderStatus
+                  in: query
+                  required: false
+                  description: Filter orders by status
+                  schema:
+                      type: string
+                      enum:
+                          - Placed
+                          - Approved
+                          - Delivering
+                          - Paid
+                          - Completed
+                          - Failed
+                          - Cancelled
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrdersResponse'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /order/{id}:
+        get:
+            summary: Get order by id
+            description: Get order by id
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderDetail'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        patch:
+            summary: Update order status
+            description: Update order status
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+            requestBody:
+                description: Order status payload
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateOrderStatusForm'
+                required: true
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /order/{id}/cancel:
+        patch:
+            summary: Cancel order
+            description: Cancel order
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /order/{id}/orderItems/{orderItemId}/products/{productId}:
+        post:
+            summary: Review product by order item id
+            description: Review product by order item id
+            tags:
+                - Order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order id
+                - name: orderItemId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Order item id
+                - name: productId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: Product id
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReviewForm'
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+    /sliders:
+        post:
+            summary: Create new slider 
+            description: Create new slider 
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            requestBody:
+                description: Payload to update product
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SliderForm'
+            responses:
+                '201':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+        get:
+            summary: Get all sliders
+            description: Get all sliders
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items: 
+                                    $ref: "#/components/schemas/Slider"
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                
+    /sliders/{id}:
+        get:
+            summary: Get slider by id
+            description: Get slider by id
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Slider id                
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items: 
+                                    $ref: "#/components/schemas/Slider"
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'  
+        put:
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            summary: Admin update slider
+            description: Admin update slider
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Slider id                 
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SliderForm"
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Slider'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'   
+        delete:
+            tags:
+                - Slider
+            security:
+                - bearerAuth: []
+            summary: Admin delete slider
+            description: Admin delete slider
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Slider id                 
+            responses:
+                '200':
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Slider'
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NotFoundError'
+                '500':
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'                                                                  
 components:
     schemas:
-        Error:
+        BadRequestError:
             type: object
             properties:
+                status:
+                    type: integer
+                    description: error status
                 message:
                     type: string
                     description: error message
                 stack:
                     type: string
                     description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:    
+                status: '400'
+                message: 'Invalid request body'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'              
+        UnauthorizedError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '401'
+                message: 'Authentication failed"'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'  
+        ForbiddenError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '401'
+                message: 'Authentication failed"'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'                      
+        NotFoundError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '404'
+                message: "Requested item wasn't found!"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        InternalServerError:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: error status
+                message:
+                    type: string
+                    description: error message
+                stack:
+                    type: string
+                    description: error message description
+                timestamp:
+                    type: string
+                    format: date
+            example:
+                status: '500'
+                message: "Oops, looks like we're having a problem. try again later"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'                                        
         Timestamps:
             type: object
             properties:
@@ -340,12 +1896,776 @@ components:
                     type: string
                 updatedAt:
                     type: string
+            example:
+                createdAt: "2022-08-14T10:11:16.681Z"
+                updatedAt: "2022-08-21T06:47:30.131Z"    
         Message:
             type: object
             properties:
                 message:
                     type: string
- 
+            example:
+                message: "Success"
+        UserRegisterForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    nullable: false
+                email:
+                    type: string
+                    nullable: false
+                password:
+                    type: string
+                    nullable: false
+                phone:
+                    type: string
+                    nullable: false
+            example:
+                name: "user"
+                email: "user@gmail.com"
+                password: "123456789"
+                phone: "0123456789"
+        UserUpdateProfileForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    nullable: false
+                phone:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+                country:
+                    type: string
+            example:
+                name: "user"
+                password: "123456789"
+                phone: "0123456789"
+                address: "District 1"
+                city: "HCM"
+                country: "VN"                  
+        UserResponse:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                      name:
+                          type: string
+                      email:
+                          type: string
+                      role:
+                          type: string
+                      phone:
+                          type: string
+                      address:
+                          type: string
+                      city:
+                          type: string
+                      country:
+                          type: string
+                  example: 
+                    _id: "00a0aa00aa0000a000a00a0a"
+                    name: "user"
+                    email: "user@gmail.com"
+                    role: "user"
+                    phone: "0123456789"
+                    address: "District 1"
+                    city: "HCM"
+                    country: "VN"    
+        UserResponseWithAccessToken:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/UserResponse'
+                - type: object
+                  properties:
+                      accessToken:
+                          type: string
+                  example:
+                    accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7Il9pZCI6IjYyZjhjYTQ0ZWU4MTQyZTAyNGE5N2QyZSJ9LCJpYXQiOjE2Njg3ODk3MTcsImV4cCI6MTY2OTA0ODkxN30.nZIb3tAxGAzI7YEvsV-prVAuLVvKMxwVS9-4EfnZx14"
+        User:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/UserResponse'
+                - type: object
+                  properties:
+                      password:
+                          type: string
+                      isVerified:
+                          type: boolean
+                      emailVerificationToken:
+                          type: string
+                      resetPasswordToken:
+                          type: string
+                      resetPasswordTokenExpiryTime:
+                          type: integer  
+                  example:
+                      password: "123456"
+                      isVerified: true
+                      emailVerificationToken: "token" 
+                      resetPasswordToken: "token"
+                      resetPasswordTokenExpiryTime: 10
+        CategoryForm: 
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Category name
+                description: 
+                    type: string
+                    description: Category description
+            example:       
+                name: "Dress"
+                descirption: "Beautiful"                                                       
+        Category: 
+            allOf:
+                - $ref: "#/components/schemas/Timestamps"
+                - $ref: "#/components/schemas/CategoryForm"
+                - type: object                                     
+                  properties:
+                    _id: 
+                        type: string
+                        description: Category id
+            example:
+                _id: "00a0aa00aa0000a000a00a0a"
+                name: "Dress"
+                descirption: "Beautiful"                 
+                createdAt: "2022-08-14T10:11:16.681Z"
+                updatedAt: "2022-08-21T06:47:30.131Z"                               
+        ReviewForm:
+            type: object
+            properties:
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                    minimum: 0
+                    maximum: 5
+                comment:
+                    type: string
+                    description: Review content
+            example:
+                rating: 5
+                comment: "Good"
+        Review:
+            type: object
+            allOf:
+            - $ref: '#/components/schemas/Timestamps'
+            - type: object
+              properties:
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                    minimum: 0
+                    maximum: 5
+                comment:
+                    type: string
+                    description: Review content
+                user:
+                    type: string
+                    description: User ID     
+              example:
+                rating: 5
+                comment: "Good"
+                user: "00a0aa00aa0000a000a00a0a"           
+        VariantForm:
+            type: object
+            properties:
+                size:
+                    type: string
+                    description: Variant size
+                color:
+                    type: string
+                    description: Variant color
+                quantity:
+                    type: number
+                    description: Variant quantity
+                price:
+                    type: number
+                    description: Variant price
+            example:
+                size: "S"
+                color: "Blue"
+                quantity: 10
+                price: 100
+        VariantFormWithVariantId:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/VariantForm'
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                          description: Variant id
+                          nullable: true
+                  example: 
+                    _id: "00a0aa00aa0000a000a00a0a"
+        VariantFormWithVariantIdAndTimestamps:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/VariantFormWithVariantId'
+                - $ref: "#/components/schemas/Timestamps"                
+        # Variant:
+        #     type: object
+        #     allOf:
+        #       - $ref: '#/components/schemas/Timestamps'
+        #       - type: object
+        #         properties:
+        #             _id:
+        #                 type: string
+        #                 description: Variant object id.
+        #             product:
+        #                 type: string
+        #                 description: Product Id
+        #             size:
+        #                 type: string
+        #                 description: Variant size
+        #             color:
+        #                 type: string
+        #                 description: Variant color
+        #             quantity:
+        #                 type: number
+        #                 description: Variant quantity
+        #             price:
+        #                 type: number
+        #                 description: Variant price                  
+        PopulatedVariant:
+            type: object
+            allOf: 
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                        _id:
+                            type: string
+                            description: Variant object id.
+                        product:
+                            type: object
+                            properties:
+                                _id:
+                                    type: string
+                                    description: Product Id
+                                name:
+                                    type: string
+                                    description: Product name
+                                image:
+                                    type: string
+                                    description: Product image's url
+                                description:
+                                    type: string
+                                    description: Product description
+                                category:
+                                    type: string
+                                    description: Product category id
+                                rating:
+                                    type: number
+                                    description: User ratings (5-stars rating)
+                                numReviews:
+                                    type: number
+                                    description: Number of reviews
+                                price:
+                                    type: number
+                                    description: Product price
+                                variants:
+                                    type: array
+                                    description: Array of product variant Ids
+                                totalSales:
+                                    type: number
+                                    description: Product total sales
+                                reviews:
+                                    $ref: '#/components/schemas/Review'
+                                timestamps:
+                                    $ref: '#/components/schemas/Timestamps'                            
+                        size:
+                            type: string
+                            description: Variant size
+                        color:
+                            type: string
+                            description: Variant color
+                        quantity:
+                            type: number
+                            description: Variant quantity
+                        price:
+                            type: number
+                            description: Variant price                            
+        ProductSearchResponse:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Product Id
+                name:
+                    type: string
+                    description: Product name
+            example: 
+                _id: "00a0aa00aa0000a000a00a0a"
+                name: "Amazon Essentials Women's Tank Swing Dress"
+        PaginatedProductsResponse:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: Current product page number
+                    example: 0
+                pages:
+                    type: integer
+                    description: Total product pages
+                    example: 1
+                products:
+                    type: array
+                    description: Total product in 1 page
+                    items:
+                        $ref: '#/components/schemas/Product'
+                totalProducts:
+                    type: integer
+                    description: Total products
+                    example: 1
+        ProductFormTemplate:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Product name
+                description:
+                    type: string
+                    description: Product description
+                image:
+                    type: string
+                    description: Product image's url
+                price:
+                    type: number
+                    description: Product price
+                category:
+                    type: string
+                    description: Product category id
+        ProductCreateForm:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/ProductFormTemplate'
+                - type: object
+                  properties:
+                      variants:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/VariantForm'
+        ProductUpdateForm:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/ProductFormTemplate'
+                - type: object
+                  properties:
+                      variants:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/VariantFormWithVariantId'
+        Product:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Product Id
+                name:
+                    type: string
+                    description: Product name                  
+                image:
+                    type: string
+                    description: Product image's url                  
+                description:
+                    type: string
+                    description: Product description
+                category: 
+                    $ref: "#/components/schemas/Category"
+                rating:
+                    type: number
+                    description: User ratings (5-stars rating)
+                numReviews:
+                    type: number
+                    description: Number of reviews
+                price:
+                    type: number
+                    description: Product price                        
+                variants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/VariantFormWithVariantIdAndTimestamps'                                                     
+        ProductsSearchResult:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    description: Product id
+                name:
+                    type: string
+                    description: Product name      
+            example:
+                _id: "00a0aa00aa0000a000a00a0a"
+                name: "Amazon Essentials Women's Tank Swing Dress"                                                            
+        CartItem:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      variant:
+                          type: string
+                          description: Product variant Id
+                      quantity:
+                          type: number
+                          description: Cart item quantity
+        Cart:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      user:
+                          type: string
+                          description: User ID
+                      cartItems:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/CartItem'
+        PopulatedCartItem:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      _id: 
+                        type: string
+                        description: Cart item id
+                      variant:
+                          $ref: '#/components/schemas/PopulatedVariant'                        
+                      quantity:
+                          type: number
+                          description: Cart item quantity
+                  example: 
+                    _id: "00a0aa00aa0000a000a00a0a"
+                    quantity: 10      
+                    variant:
+                        _id: "00a0aa00aa0000a000a00a0a"
+                        size: "S"
+                        color: "Blue"
+                        quantity: 5
+                        price: 100
+                        product: 
+                            createdAt: "2022-08-14T10:11:16.681Z"
+                            updatedAt: "2022-08-21T06:47:30.131Z"                           
+                            _id: "00a0aa00aa0000a000a00a0a"
+                            name: "Amazon Essentials Women's Tank Swing Dress"
+                            image: "https://res.cloudinary.com/nocompanyforsure/image/upload/v1663290745/grygzivfdfwlc3hfte73.webp"
+                            description: "52% Cotton, 48% Polyester"
+                            category: "00a0aa00aa0000a000a00a0a"
+                            rating: 5
+                            numReviews: 5
+                            price: 100
+                            variants: ["00a0aa00aa0000a000a00a0a"]
+                            totalSales: 10                             
+        PopulatedCart:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      user:
+                          type: string
+                          description: User ID
+                      cartItems:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/PopulatedCartItem'
+        CartUpdateForm:
+            type: object
+            properties:
+                variantId:
+                    type: string
+                    description: Cart item variant Id
+                quantity:
+                    type: number
+                    description: Cart item quantity
+            example:
+                variantId: "00a0aa00aa0000a000a00a0a"
+                quantity: 5
+        CartRemoveForm:
+            type: object
+            properties:
+                variantIds:
+                    type: array
+                    items:
+                        type: string  
+            example:
+                variantIds: ["00a0aa00aa0000a000a00a0a"]  
+        ShippingAddress:
+            type: object
+            properties:
+                address:
+                    type: string
+                    description: Shipping address
+                city:
+                    type: string
+                    description: Shipping city
+                postalCode:
+                    type: string
+                    description: Shipping postal code
+                country:
+                    type: string
+                    description: Shipping country
+        ContactInformation:
+            type: object
+            properties:
+                phone:
+                    type: string
+                    description: Customer phone number
+                email:
+                    type: string
+                    description: Customer email                           
+        RawOrderItem:
+            type: object
+            properties:
+                variant:
+                    type: string
+                    description: Ordered item variant id
+                product:
+                    type: string
+                    description: Ordered item product id
+                name:
+                    type: string
+                    description: Ordered item product name
+                image:
+                    type: string
+                    description: Ordered item product image
+                quantity:
+                    type: string
+                    description: Ordered item variant quantity
+                size:
+                    type: string
+                    description: Ordered item variant size
+                color:
+                    type: string
+                    description: Ordered item variant color
+                price:
+                    type: number
+                    description: Ordered item variant price
+        OrderItem:
+            allOf:
+                - $ref: '#/components/schemas/RawOrderItem'
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                          description: Ordered item id
+        OrderStatus:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/Timestamps'
+                - type: object
+                  properties:
+                      status:
+                          type: string
+                          description: Order status
+                      description:
+                          type: string
+                          description: Order status description
+                      _id:
+                          type: string
+                          description: Order status history id
+        OrderCommonFields:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: Ordered user name
+                shippingAddress:
+                    $ref: '#/components/schemas/ShippingAddress'
+                paymentMethod:
+                    type: string
+                    description: Payment method
+                taxPrice:
+                    type: number
+                    description: Tax price
+                shippingPrice:
+                    type: number
+                    description: Shipping price
+                totalPrice:
+                    type: number
+                    description: Total price
+                contactInformation:
+                    $ref: '#/components/schemas/ContactInformation'
+            example: 
+                username: "user"
+                shippingAddress: 
+                    address: "District 1"
+                    city: "HCM"
+                    postalCode: "HCMPC"
+                    country: "VN"
+                paymentMethod: "Paypal"
+                taxPrice: 100
+                shippingPrice: 100
+                totalPrice: 100
+                contactInformation: 
+                    phone: "0123456789"
+                    email: "user@gmail.com"
+        OrderDetail:
+            allOf:
+                - type: object
+                  properties:
+                      _id:
+                          type: string
+                          description: Order id
+                      user:
+                          type: string
+                          description: User id
+                      username:
+                          type: string
+                          description: User name
+                      orderItems:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/OrderItem'
+                      status:
+                          type: string
+                          description: Order current status
+                      statusHistory:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/OrderStatus'
+                - $ref: '#/components/schemas/OrderCommonFields'
+                - $ref: '#/components/schemas/Timestamps'
+        PlaceOrderForm:
+            allOf:
+                - type: object
+                  properties:
+                      orderItems:
+                          type: array
+                          items:
+                              type: object
+                              properties:
+                                  variant:
+                                      type: string
+                                      description: Ordered item variant id
+                                  quantity:
+                                      type: string
+                                      description: Ordered item variant quantity
+                              example: 
+                                  variant: "00a0aa00aa0000a000a00a0a"
+                                  quantity: 10
+                - $ref: '#/components/schemas/OrderCommonFields'
+        PaginatedOrdersResponse:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: Current page number
+                pages:
+                    type: integer
+                    description: Total pages
+                totalOrders:
+                    type: integer
+                    description: Total orders
+                orders:
+                    type: array
+                    description: Total orders in 1 page
+                    items:
+                        allOf:
+                            - type: object
+                              properties:
+                                  _id:
+                                      type: string
+                                      description: Order id
+                                  user:
+                                      type: string
+                                      description: User id
+                                  username:
+                                      type: string
+                                      description: Ordered user name
+                                  orderItems:
+                                      type: array
+                                      items:
+                                          $ref: '#/components/schemas/OrderItem'
+                                  status:
+                                      type: string
+                                      description: Order current status
+                                  statusHistory:
+                                      type: array
+                                      items:
+                                          $ref: '#/components/schemas/OrderStatus'
+                            - $ref: '#/components/schemas/OrderCommonFields'
+                            - $ref: '#/components/schemas/Timestamps'
+        UpdateOrderStatusForm:
+            type: object
+            properties:
+                status:
+                    type: string
+                    description: New order status
+                    enum:
+                        - Placed
+                        - Approved
+                        - Delivering
+                        - Paid
+                        - Completed
+                        - Failed
+                        - Cancelled
+                description:
+                    type: string
+                    description: Description of the new status 
+        SliderForm:
+            type: object
+            properties:
+                url: 
+                    type: string
+                    description: Slide url
+            example:
+                url: "https://res.cloudinary.com/nocompanyforsure/image/upload/v1663299565/h01sox6xea2rguejjwmz.jpg"
+        Slider:
+            type: object
+            allOf:
+                - $ref: "#/components/schemas/SliderForm"
+                - $ref: "#/components/schemas/Timestamps"
+                - type: object
+                  properties:
+                        _id: 
+                            type: string
+                            description: Slider id
+            example:
+                _id: "00a0aa00aa0000a000a00a0a"
+                url: "https://res.cloudinary.com/nocompanyforsure/image/upload/v1663299565/h01sox6xea2rguejjwmz.jpg"
+                createdAt: "2022-08-14T10:11:16.681Z"
+                updatedAt: "2022-08-21T06:47:30.131Z"                       
+
+    examples:
+        BadRequestError: 
+            value:
+                status: '400'
+                message: 'Invalid request body'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        UnauthorizedError: 
+            value:
+                status: '401'
+                message: 'Authentication failed"'
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        ForbiddenError: 
+            value:
+                status: '403'
+                message: "You don't have permission to perform this operation!"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        NotFoundError: 
+            value: 
+                status: '404'
+                message: "Requested item wasn't found!"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'
+        InternalServerError: 
+            value:
+                status: '500'
+                message: "Oops, looks like we're having a problem. try again later"
+                stack: ''
+                timestamp: '2022-10-10T10:53:48.612Z'                                                       
     securitySchemes:
         bearerAuth:
             type: apiKey

@@ -1,28 +1,27 @@
-import express from "express";
-import dotenv from "dotenv";
-import morgan from "morgan";
-import cors from "cors";
-import YAML from "yamljs";
-import swaggerUiExpress from "swagger-ui-express";
-import connectDatabase from "./config/db.config.js";
-import { notFound, errorHandler } from "./middlewares/error.middleware.js";
-import routes from "./routes/index.js";
+import express from 'express';
+import 'dotenv/config';
+import morgan from 'morgan';
+import cors from 'cors';
+import YAML from 'yamljs';
+import swaggerUiExpress from 'swagger-ui-express';
+import connectDatabase from './config/db.config.js';
+import { notFound, errorHandler } from './middlewares/error.middleware.js';
+import routes from './routes/index.js';
 
-dotenv.config();
 connectDatabase();
 const app = express();
 app.use(express.json());
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 app.use(cors());
 
 //swagger
-const swaggerDocument = YAML.load("./config/swagger.config.yaml");
+const swaggerDocument = YAML.load('./config/swagger.config.yaml');
 app.use(
-  "/swagger",
+  '/swagger',
   swaggerUiExpress.serve,
   swaggerUiExpress.setup(swaggerDocument, {
     swaggerOptions: {
-      docExpansion: "none",
+      docExpansion: 'none',
     },
   })
 );
@@ -37,5 +36,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 1000;
 
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`Server is listening on port ${PORT}`);
 });
