@@ -16,7 +16,6 @@ const login = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
       role: user.role,
       accessToken: generateAuthToken({ _id: user._id }),
       phone: user.phone,
