@@ -19,7 +19,7 @@ categoryRouter.post(
   expressAsyncHandler(categoryController.createCategory)
 );
 categoryRouter.put(
-  '/',
+  '/:categoryId',
   protect,
   auth('admin'),
   expressAsyncHandler(categoryController.updateCategory)
