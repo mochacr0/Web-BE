@@ -40,7 +40,7 @@ const getCategoriesAndPaginate = async (req, res) => {
 
 const createCategory = async (req, res) => {
   const { name, description } = req.body;
-  const error = checkParams({ name, description });
+  const error = checkParams({ name });
   if (error.length != 0) {
     res.status(400);
     throw new Error(error);
@@ -72,7 +72,7 @@ const removeCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   const { name, description } = req.body;
   const { categoryId } = req.params;
-  const error = checkParams({ name, description });
+  const error = checkParams({ name });
   if (error.length != 0) {
     res.status(400);
     throw new Error(error);
@@ -82,8 +82,13 @@ const updateCategory = async (req, res) => {
     res.status(404);
     throw new Error(`Category with id [${categoryId}] is not found`);
   }
+  const existingTitleCategory = await Category.findOne({ name: name });
+  if (existingTitleCategory) {
+    throw new Error(`Categroy with name [${name} already exists`);
+  }
   existingCategory.name = name || existingCategory.name;
-  existingCategory.description = description || existingCategory.description;
+  //existingCategory.description = description || existingCategory.description;
+  existingCategory.description = description;
   const updatedCategory = await existingCategory.save();
   res.json(updatedCategory);
 };

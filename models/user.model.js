@@ -1,7 +1,36 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import dotenv from 'dotenv';
+
+// const failedLoginAttempts = mongoose.Schema({
+//   count: {
+//     type: Number,
+//     required: false,
+//     default: 0,
+//   },
+//   firstFailedLoginAttempt: {
+//     type: Number,
+//     required: false,
+//     default: 0,
+//   },
+// });
+
+// const forgotPasswordAttempts = mongoose.Schema({
+//   count: {
+//     type: Number,
+//     required: false,
+//     default: 0,
+//   },
+//   firstForgotPasswordAttempt: {
+//     type: Number,
+//     required: false,
+//     default: 0,
+//   },
+//   firstForgotPasswordAttemptIpAddress: {
+//     type: String,
+//     required: false,
+//   },
+// });
 
 const userSchema = mongoose.Schema(
   {
@@ -61,6 +90,22 @@ const userSchema = mongoose.Schema(
     },
     facebookId: {
       type: String,
+      required: false,
+    },
+    failedLoginAttempts: {
+      type: Object,
+      default: {},
+    },
+    // failedLoginLockExpiryTime: {
+    //   type: Number,
+    //   required: false,
+    // },
+    forgotPasswordAttempts: {
+      type: Object,
+      default: {},
+    },
+    forgotPasswordLockExpiryTime: {
+      type: Number,
       required: false,
     },
   },

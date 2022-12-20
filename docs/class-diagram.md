@@ -1,3 +1,4 @@
 ### Class Diagram
 
-Lucid link: https://lucid.app/lucidchart/ac2c1278-aca7-4f74-8ce4-f5dab6d03507/edit?viewport_loc=22%2C-783%2C2222%2C1326%2C0_0&invitationId=inv_23d3f2b8-aefa-4b0c-9ae6-53e73e2d0e6e#
+Lucid link:
+https://lucid.app/lucidchart/c55028b5-1e8d-46ec-b6bf-49e0902d9be6/edit?viewport_loc=193%2C-262%2C2267%2C1059%2C0_0&invitationId=inv_87d7dfa7-daff-4a18-af2d-73e731f58699

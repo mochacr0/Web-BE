@@ -73,7 +73,6 @@ const changePassword = async (req, res) => {
     res.status(400);
     throw new Error('New password is not valid');
   }
-  console.log(req);
   const user = await User.findById(req.user._id);
   if (!user) {
     res.status(404);

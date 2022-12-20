@@ -9,7 +9,6 @@ const getSliders = async (req, res) => {
 };
 
 const getSliderById = async (req, res) => {
-  console.log(req.params.id);
   const slider = await Slider.findById(req.params.id);
   if (!slider) {
     res.status(404);
@@ -59,7 +58,10 @@ const updateSlider = async (req, res) => {
     res.status(500);
     throw new Error('Error while uploading image');
   }
-  const publicId = slider.url.split('.').pop();
+  const publicId = slider.url
+    .match(/(\w+)\.(jpg|jpeg|jpe|png|webp)$/g)[0]
+    .split('.')
+    .shift();
   const removeOldImageCloudinary = cloudinaryRemove(publicId);
   const removeNewImageLocal = fs.promises.unlink(req.file.path);
   slider.url = image.secure_url.toString();
@@ -78,9 +80,11 @@ const deleteSlider = async (req, res) => {
     res.status(404);
     throw new Error('Slider not found');
   }
-  const publicId = deletedSlider.url.split('.').pop();
+  const publicId = deletedSlider.url
+    .match(/(\w+)\.(jpg|jpeg|jpe|png|webp)$/g)[0]
+    .split('.')
+    .shift();
   const removeImage = await cloudinaryRemove(publicId);
-  console.log(removeImage);
   res.status(200);
   res.json({ message: 'Slider is deleted' });
 };

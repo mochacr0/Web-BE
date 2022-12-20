@@ -108,7 +108,7 @@ const deleteProduct = async (req, res) => {
   }
   //extract product image name
   const cloudinaryImage = deletedProduct.image
-    .match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0]
+    .match(/(\w+)\.(jpg|jpeg|jpe|png|webp)$/g)[0]
     .split('.')
     .shift();
   const removeCartItem = Cart.updateMany(
@@ -158,14 +158,14 @@ const updateProduct = async (req, res, next) => {
       res.status(404);
       throw new Error('Error while uploading image');
     }
-    product.image = image.secure_url.toString();
     const cloudinaryImage = product.image
-      .match(/(\w+)\.(jpg|jpeg|jpe|png)$/g)[0]
+      .match(/(\w+)\.(jpg|jpeg|jpe|png|webp)$/g)[0]
       .split('.')
       .shift();
     const removeOldImageCloudinary = cloudinaryRemove(cloudinaryImage);
     const removeNewImageLocal = fs.promises.unlink(req.file.path);
     await Promise.all([removeOldImageCloudinary, removeNewImageLocal]);
+    product.image = image.secure_url.toString();
   }
   //update variant
   //update current variants

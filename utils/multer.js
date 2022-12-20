@@ -1,9 +1,15 @@
-import multer from "multer";
+import multer from 'multer';
 const destination = (req, file, cb) => {
-  cb(null, "./assets/images");
+  cb(null, './assets/images');
 };
 
-const acceptedMimeTypes = ["image/jpg", "image/jpe", "image/png", "image/jpeg"];
+const acceptedMimeTypes = [
+  'image/jpg',
+  'image/jpe',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+];
 
 const fileFilter = (req, file, cb) => {
   if (acceptedMimeTypes.includes(file.mimetype)) {

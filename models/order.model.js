@@ -28,6 +28,11 @@ const orderSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    shipper: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      ref: 'User',
+    },
     orderItems: [
       {
         variant: {
