@@ -1,35 +1,98 @@
 import schedule, { scheduleJob } from 'node-schedule';
 import crypto from 'crypto';
 import User from '../models/user.model.js';
+import Cart from '../models/cart.model.js';
 import { sendMail } from '../utils/nodemailer.js';
 import generateAuthToken from '../utils/generateToken.js';
 import { htmlMailVerify, htmlResetEmail } from '../common/mailLayout.js';
 import image from '../common/images.js';
+import e from 'cors';
 
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email, isVerified: true });
-
-  if (user && (await user.matchPassword(password))) {
-    res.status(200);
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      role: user.role,
-      accessToken: generateAuthToken({ _id: user._id }),
-      phone: user.phone,
-      address: user.address,
-      city: user.city,
-      country: user.country,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
-  } else {
+  if (!user) {
     res.status(401);
     throw new Error('Invalid Email or Password');
   }
+  const ipAddress =
+    req.headers['x-forwarded-for']?.split(',').shift() ||
+    req.socket?.remoteAddress;
+  if (
+    user.failedLoginAttempts.hasOwnProperty(ipAddress) &&
+    user.failedLoginAttempts[ipAddress].failedLoginLockExpiryTime > Date.now()
+  ) {
+    res.status(429);
+    throw new Error(
+      `Your account has been locked due to ${
+        process.env.FAILED_LOGIN_ATTEMPS_LIMIT
+      } failed login attempts in ${
+        Number(process.env.FAILED_LOGIN_LOCK_EXPIRY_TIME_IN_MILISECONDS) / 60000
+      } minutes; please try again later`
+    );
+  }
+  const isPasswordMatched = await user.matchPassword(password);
+  if (!isPasswordMatched) {
+    if (!user.failedLoginAttempts.hasOwnProperty(ipAddress)) {
+      const newFailedLoginAttempt = {
+        count: 1,
+        firstFailedLoginAttempt: Date.now(),
+        failedLoginLockExpiryTime: 0,
+      };
+      user.failedLoginAttempts[ipAddress] = newFailedLoginAttempt;
+    } else {
+      const currentFailedAttempt = user.failedLoginAttempts[ipAddress];
+      //might be locked
+      if (currentFailedAttempt.failedLoginLockExpiryTime <= Date.now()) {
+        currentFailedAttempt.count += 1;
+        if (
+          currentFailedAttempt.firstFailedLoginAttempt +
+            Number(
+              process.env.FAILED_LOGIN_ATTEMPS_TIME_LIMIT_IN_MILISECONDS
+            ) >=
+          Date.now()
+        ) {
+          if (
+            currentFailedAttempt.count >=
+            Number(process.env.FAILED_LOGIN_ATTEMPS_LIMIT)
+          ) {
+            currentFailedAttempt.count = 0;
+            currentFailedAttempt.firstFailedLoginAttempt = 0;
+            currentFailedAttempt.failedLoginLockExpiryTime =
+              Date.now() +
+              Number(process.env.FAILED_LOGIN_LOCK_EXPIRY_TIME_IN_MILISECONDS);
+          }
+        } else {
+          currentFailedAttempt.count = 1;
+          currentFailedAttempt.firstFailedLoginAttempt = Date.now();
+          currentFailedAttempt.failedLoginLockExpiryTime = 0;
+        }
+      }
+      user.failedLoginAttempts[ipAddress] = currentFailedAttempt;
+    }
+    user.markModified('failedLoginAttempts');
+    await user.save();
+    res.status(401);
+    throw new Error('Invalid Email or Password');
+  }
+  //login succeeded
+  user.failedLoginAttempts[ipAddress] = undefined;
+  user.markModified('failedLoginAttempts');
+  await user.save();
+  res.status(200);
+  res.json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    accessToken: generateAuthToken({ _id: user._id }),
+    phone: user.phone,
+    address: user.address,
+    city: user.city,
+    country: user.country,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  });
 };
 
 const register = async (req, res, next) => {
@@ -59,6 +122,7 @@ const register = async (req, res, next) => {
         _id: user._id,
         isVerified: false,
       });
+      await Cart.findOneAndDelete({ userId: foundUser._id });
       console.log(foundUser);
       scheduledJob.cancel();
     }
@@ -96,10 +160,10 @@ const verifyEmail = async (req, res) => {
   user.isVerified = true;
   user.emailVerificationToken = null;
   const verifiedUser = await user.save();
-  // const cart = await Cart.create({
-  //   user: verifiedUser._id,
-  //   cartItems: [],
-  // });
+  const cart = await Cart.create({
+    user: verifiedUser._id,
+    cartItems: [],
+  });
   res.status(200);
   res.json({ accessToken: generateAuthToken({ _id: verifiedUser._id }) });
 };
@@ -129,8 +193,91 @@ const forgotPassword = async (req, res) => {
     res.status(400);
     throw new Error('Email not found');
   }
+  // if (Number(user.forgotPasswordLockExpiryTime) > Date.now()) {
+  //   res.status(429);
+  //   throw new Error(
+  //     `Your account has been locked due to ${
+  //       process.env.FORGOT_PASSWORD_ATTEMPS_LIMIT
+  //     } forgot password requests in ${
+  //       Number(process.env.FORGOT_PASSWORD_ATTEMPS_TIME_LIMIT_IN_MILISECONDS) /
+  //       60000
+  //     } minutes; please try again later`
+  //   );
+  // }
+  const ipAddress =
+    req.headers['x-forwarded-for']?.split(',').shift() ||
+    req.socket?.remoteAddress;
+  if (
+    user.forgotPasswordAttempts.hasOwnProperty(ipAddress) &&
+    user.forgotPasswordAttempts[ipAddress].forgotPasswordLockExpiryTime >
+      Date.now()
+  ) {
+    res.status(429);
+    throw new Error(
+      `Your account has been locked due to ${
+        process.env.FORGOT_PASSWORD_ATTEMPS_LIMIT
+      } forgot password requests in ${
+        Number(process.env.FORGOT_PASSWORD_ATTEMPS_TIME_LIMIT_IN_MILISECONDS) /
+        60000
+      } minutes; please try again later`
+    );
+  }
+  //////
+  if (!user.forgotPasswordAttempts.hasOwnProperty(ipAddress)) {
+    const newForgotPasswordAttempt = {
+      count: 1,
+      firstForgotPasswordAttempt: Date.now(),
+      forgotPasswordLockExpiryTime: 0,
+    };
+    user.forgotPasswordAttempts[ipAddress] = newForgotPasswordAttempt;
+  } else {
+    const currentForgotPasswordAttempt = user.forgotPasswordAttempts[ipAddress];
+    //might be locked
+    if (
+      currentForgotPasswordAttempt.forgotPasswordLockExpiryTime <= Date.now()
+    ) {
+      currentForgotPasswordAttempt.count += 1;
+      if (
+        currentForgotPasswordAttempt.firstForgotPasswordAttempt +
+          Number(
+            process.env.FORGOT_PASSWORD_ATTEMPS_TIME_LIMIT_IN_MILISECONDS
+          ) >=
+        Date.now()
+      ) {
+        if (
+          currentForgotPasswordAttempt.count >
+          Number(process.env.FORGOT_PASSWORD_ATTEMPS_LIMIT)
+        ) {
+          currentForgotPasswordAttempt.count = 0;
+          currentForgotPasswordAttempt.firstForgotPasswordAttempt = 0;
+          currentForgotPasswordAttempt.forgotPasswordLockExpiryTime =
+            Date.now() +
+            Number(process.env.FORGOT_PASSWORD_LOCK_EXPIRY_TIME_IN_MILISECONDS);
+          user.markModified('forgotPasswordAttempts');
+          await user.save();
+          res.status(429);
+          throw new Error(
+            `Your account has been locked due to ${
+              process.env.FORGOT_PASSWORD_ATTEMPS_LIMIT
+            } forgot password requests in ${
+              Number(
+                process.env.FORGOT_PASSWORD_ATTEMPS_TIME_LIMIT_IN_MILISECONDS
+              ) / 60000
+            } minutes; please try again later`
+          );
+        }
+      } else {
+        currentForgotPasswordAttempt.count = 1;
+        currentForgotPasswordAttempt.firstForgotPasswordAttempt = Date.now();
+        currentForgotPasswordAttempt.forgotPasswordLockExpiryTime = 0;
+      }
+    }
+    user.forgotPasswordAttempts[ipAddress] = currentForgotPasswordAttempt;
+  }
+
   //reset password
   const resetPasswordToken = user.getResetPasswordToken();
+  user.markModified('forgotPasswordAttempts');
   await user.save();
   //send reset password email
   const url = `http://localhost:3000/reset?resetPasswordToken=${resetPasswordToken}`;

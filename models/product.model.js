@@ -4,7 +4,7 @@ const reviewSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     rating: { type: Number, required: true },
-    comment: { type: String, required: true },
+    comment: { type: String, required: false },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -27,7 +27,7 @@ const productSchema = mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,

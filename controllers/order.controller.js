@@ -54,6 +54,16 @@ const getOrdersAndPaginate = async (req, res) => {
     'date',
     req.query.dateOrder
   );
+  let shipperFilter = {};
+  if (req.user.role.toString().localeCompare('shipper') == 0) {
+    shipperFilter = {
+      $or: [
+        { shipper: undefined },
+        { shipper: null },
+        { shipper: req.user._id },
+      ],
+    };
+  }
   const orderStatusFilter = validateConstants(
     orderQueryParams,
     'orderStatus',
@@ -61,6 +71,7 @@ const getOrdersAndPaginate = async (req, res) => {
   );
   const orderFilter = {
     ...orderStatusFilter,
+    ...shipperFilter,
   };
   const count = await Order.countDocuments(orderFilter);
   const orders = await Order.find({ ...orderFilter })
@@ -243,25 +254,26 @@ const updateOrderStatus = async (req, res) => {
       });
     }
     if (status == 'Delivering') {
+      order.shipper = req.user._id;
       //start a cron job to automatically change the order status to "Paid" after 7 days of delivery
-      let scheduledJob = schedule.scheduleJob(
-        `* * */${process.env.AUTO_PAID_CONFIRMATION_TIME_IN_DAY} * *`,
-        async () => {
-          const autoConfirmOrder = await Order.findOne({
-            _id: order._id,
-            status: 'Delivering',
-          });
-          if (autoConfirmOrder) {
-            autoConfirmOrder.status = 'Paid';
-            autoConfirmOrder.statusHistory.push({
-              status: 'Paid',
-              description: '',
-            });
-          }
-          await autoConfirmOrder.save();
-          scheduledJob.cancel();
-        }
-      );
+      // let scheduledJob = schedule.scheduleJob(
+      //   `* * */${process.env.AUTO_PAID_CONFIRMATION_TIME_IN_DAY} * *`,
+      //   async () => {
+      //     const autoConfirmOrder = await Order.findOne({
+      //       _id: order._id,
+      //       status: 'Delivering',
+      //     });
+      //     if (autoConfirmOrder) {
+      //       autoConfirmOrder.status = 'Paid';
+      //       autoConfirmOrder.statusHistory.push({
+      //         status: 'Paid',
+      //         description: '',
+      //       });
+      //     }
+      //     await autoConfirmOrder.save();
+      //     scheduledJob.cancel();
+      //   }
+      // );
     }
   } else {
     if (order.status != status || order.status == 'Paid') {

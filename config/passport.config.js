@@ -1,7 +1,6 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import User from '../models/user.model.js';
-import dotenv from 'dotenv';
 import generateAuthToken from '../utils/generateToken.js';
 
 const googleVerify = async (

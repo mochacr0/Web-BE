@@ -14,13 +14,13 @@ orderRouter.post(
 orderRouter.get(
   '/all',
   protect,
-  auth('admin'),
+  auth('admin', 'shipper'),
   expressAsyncHandler(orderController.getOrdersAndPaginate)
 );
 orderRouter.get(
   '/:id',
   protect,
-  auth('user', 'admin'),
+  auth('shipper', 'admin', 'user'),
   expressAsyncHandler(orderController.getOrderById)
 );
 orderRouter.get(
@@ -32,13 +32,13 @@ orderRouter.get(
 orderRouter.patch(
   '/:id',
   protect,
-  auth('user', 'admin'),
+  auth('shipper', 'admin', 'user'),
   expressAsyncHandler(orderController.updateOrderStatus)
 );
 orderRouter.patch(
   '/:id/cancel',
   protect,
-  auth('user', 'admin'),
+  auth('shipper', 'admin', 'user'),
   expressAsyncHandler(orderController.cancelOrder)
 );
 orderRouter.post(
